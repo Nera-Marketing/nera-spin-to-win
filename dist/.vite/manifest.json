@@ -1,0 +1,11 @@
+{
+  "src/spin-to-win.js": {
+    "file": "assets/spin-to-win-fw5EvNru.js",
+    "name": "spin-to-win",
+    "src": "src/spin-to-win.js",
+    "isEntry": true,
+    "css": [
+      "assets/spin-to-win-CSAkCYA3.css"
+    ]
+  }
+}
