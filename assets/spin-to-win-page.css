@@ -1,0 +1,70 @@
+/* ==========================================================================
+   Spin To Win — page layout compatibility
+   Fixes Astra container constraints and header responsive nav on the
+   virtual /spin-to-win/product/{id}/ route.
+   ========================================================================== */
+
+/* Remove Astra container width/padding so the full-width layout works */
+body.nera-spin-to-win-page #primary,
+body.nera-spin-to-win-page .site-content,
+body.nera-spin-to-win-page .ast-container,
+body.nera-spin-to-win-page .site-main,
+body.nera-spin-to-win-page #content {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin: 0 !important;
+}
+
+body.nera-spin-to-win-page .entry-content {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Restore header responsive nav breakpoints.
+   Some stylesheets ship .hidden { display: none } without responsive
+   variants, which breaks the lg:flex desktop nav. */
+@media (min-width: 64rem) {
+  body.nera-spin-to-win-page #site-header > div > nav > .hidden.lg\:flex {
+    display: flex !important;
+  }
+  body.nera-spin-to-win-page #site-header > div > nav > .flex.lg\:hidden {
+    display: none !important;
+  }
+  body.nera-spin-to-win-page #site-header #mobile-menu {
+    display: none !important;
+  }
+}
+
+@media (max-width: 63.999rem) {
+  body.nera-spin-to-win-page #site-header > div > nav > .hidden.lg\:flex {
+    display: none !important;
+  }
+  body.nera-spin-to-win-page #site-header > div > nav > .flex.lg\:hidden {
+    display: flex !important;
+  }
+}
+
+/* Restore footer grid columns.
+   The plugin's CSS emits .grid-cols-1 and .grid-cols-2 as global rules (no media query)
+   and loads after the theme CSS, overriding the theme's responsive md:grid-cols-2 and
+   lg:grid-cols-5 inside @media blocks. */
+@media (min-width: 48rem) {
+  body.nera-spin-to-win-page #site-footer .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: 64rem) {
+  body.nera-spin-to-win-page #site-footer .lg\:grid-cols-5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+  body.nera-spin-to-win-page #site-footer .lg\:col-span-2 {
+    grid-column: span 2 / span 2 !important;
+  }
+  body.nera-spin-to-win-page #site-footer .lg\:gap-12 {
+    gap: 3rem !important;
+  }
+}
