@@ -1,0 +1,85 @@
+/**
+ * Nera Spin To Win — standalone CSS bundle.
+ * Tailwind v4 CSS-first configuration.
+ */
+
+@import 'tailwindcss';
+
+/* Scan only this plugin's own files for utility classes */
+@source "../includes/**/*.php";
+@source "../templates/**/*.php";
+@source "../src/**/*.js";
+@source "../src/**/*.jsx";
+
+@theme {
+  /* Brand colors — identical to Nera theme defaults; overridden by theme CSS vars at runtime */
+  --color-primary:          #1313ec;
+  --color-primary-dark:     #0d0db3;
+  --color-secondary:        #f4f7ff;
+  --color-background-light: #f6f6f8;
+  --color-background-dark:  #101022;
+  --color-danger:           #dc2626;
+  --color-text-primary:     #0d0d1b;
+  --color-text-secondary:   #64748b;
+
+  /* Typography */
+  --font-heading: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body:    'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ============================================================
+   Spin To Win — component-specific CSS
+   (animations and scrollbar utilities used by JSX components)
+   ============================================================ */
+
+/* fadeInUp — also defined in theme's main.css; plugin needs its own copy for standalone use */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-fade-in-up {
+  animation: fadeInUp 0.5s forwards;
+}
+
+/* Spin-to-win wheel rim bulbs (SVG circles in WheelChrome.jsx) */
+@keyframes nera-bulb-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  45% {
+    opacity: 0.32;
+  }
+}
+
+/* Side list custom scrollbar */
+.stw-side-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f8fafc;
+}
+
+.stw-side-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.stw-side-scrollbar::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 9999px;
+}
+
+.stw-side-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+  border: 2px solid #f8fafc;
+}
+
+.stw-side-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
