@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Nera – Spin To Win
  * Description: Spin wheel for lottery competitions — spins from ticket purchases, site credit and physical prizes.
- * Version: 1.1.9
+ * Version: 1.1.10
  * Author: Nera
  * Text Domain: nera-spin-to-win
  * Requires at least: 6.0
@@ -18,7 +18,7 @@ use YahnisElsts\PluginUpdateChecker\v5p5\Vcs\GitHubApi;
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'NERA_STW_VERSION', '1.1.9' );
+define( 'NERA_STW_VERSION', '1.1.10' );
 define( 'NERA_STW_PLUGIN_FILE', __FILE__ );
 define( 'NERA_STW_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'NERA_STW_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
