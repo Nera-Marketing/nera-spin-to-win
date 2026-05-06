@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: Nera Spin To Win
+ * Plugin Name: Nera – Spin To Win
  * Description: Spin wheel for lottery competitions — spins from ticket purchases, site credit and physical prizes.
- * Version: 1.1.6
+ * Version: 1.1.7
  * Author: Nera
  * Text Domain: nera-spin-to-win
  * Requires at least: 6.0
@@ -13,26 +13,117 @@
  * @package Nera_Spin_To_Win
  */
 
-defined( 'ABSPATH' ) || exit;
-define( 'NERA_STW_VERSION', '1.1.6' );
+use YahnisElsts\PluginUpdateChecker\v5p5\Vcs\Api as PucVcsApi;
+use YahnisElsts\PluginUpdateChecker\v5p5\Vcs\GitHubApi;
 
-/**
- * Auto-update from GitHub (Plugin Update Checker v5.5).
- *
- * Plugin list / Dashboard → Updates thumbnail: PUC reads `assets/icon-128x128.png` and `assets/icon-256x256.png`
- * from the installed package (WordPress.org-style naming). Same Nera branding assets as
- * `nera-instant-win-threshold` — keep these files in sync when updating artwork.
- */
-require_once plugin_dir_path( __FILE__ ) . 'lib/plugin-update-checker/load-v5p5.php';
-$nera_stw_update_checker = YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
-	'https://github.com/Nera-Marketing/nera-spin-to-win/',
-	__FILE__,
-	'nera-spin-to-win'
-);
-$nera_stw_update_checker->getVcsApi()->enableReleaseAssets();
+defined( 'ABSPATH' ) || exit;
+
+define( 'NERA_STW_VERSION', '1.1.7' );
 define( 'NERA_STW_PLUGIN_FILE', __FILE__ );
 define( 'NERA_STW_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'NERA_STW_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+
+/**
+ * GitHub updates (Plugin Update Checker v5.5). Parity with `nera-instant-win-threshold`.
+ *
+ * Disable: `define( 'NERA_STW_DISABLE_GITHUB_UPDATES', true );`
+ * Private repo: `define( 'NERA_STW_GITHUB_TOKEN', 'ghp_...' );`
+ * Repo URL: `define( 'NERA_STW_GITHUB_REPO_URL', 'https://github.com/Owner/repo/' );` or filter `nera_stw_github_repo_url`.
+ *
+ * GitHub’s “latest” release is the newest *created* release, not always the highest semver. We therefore run the
+ * `latest_tag` strategy (semver-sorted) before `latest_release`, then force the download URL to the published
+ * `nera-spin-to-win-{version}.zip` release asset (same layout as `release.sh`), not the tag source archive.
+ *
+ * `setReleaseFilter` + `maxReleases` > 1 avoids relying only on `GET .../releases/latest` (404 when GitHub has no
+ * “latest”, or odd ordering). `setBranch( 'main' )` matches the default branch (PUC’s default is `master`).
+ *
+ * Plugin list / Dashboard → Updates: `assets/icon-128x128.png`, `assets/icon-256x256.png`.
+ */
+if ( ! defined( 'NERA_STW_DISABLE_GITHUB_UPDATES' ) || ! NERA_STW_DISABLE_GITHUB_UPDATES ) {
+	$nera_stw_github_repo_default = 'https://github.com/Nera-Marketing/nera-spin-to-win/';
+	if ( defined( 'NERA_STW_GITHUB_REPO_URL' ) && is_string( NERA_STW_GITHUB_REPO_URL ) && NERA_STW_GITHUB_REPO_URL !== '' ) {
+		$nera_stw_github_repo_default = NERA_STW_GITHUB_REPO_URL;
+	}
+	$nera_stw_github_repo = apply_filters( 'nera_stw_github_repo_url', $nera_stw_github_repo_default );
+
+	$nera_stw_puc_loader = NERA_STW_PLUGIN_DIR . 'lib/plugin-update-checker/load-v5p5.php';
+	if ( is_readable( $nera_stw_puc_loader ) ) {
+		require_once $nera_stw_puc_loader;
+		$nera_stw_update_checker = YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+			$nera_stw_github_repo,
+			__FILE__,
+			'nera-spin-to-win',
+			6
+		);
+		$nera_stw_update_checker->setBranch( 'main' );
+
+		if ( defined( 'NERA_STW_GITHUB_TOKEN' ) && is_string( NERA_STW_GITHUB_TOKEN ) && NERA_STW_GITHUB_TOKEN !== '' ) {
+			$nera_stw_update_checker->setAuthentication( NERA_STW_GITHUB_TOKEN );
+		}
+
+		$nera_stw_puc_vcs = $nera_stw_update_checker->getVcsApi();
+		if ( $nera_stw_puc_vcs instanceof GitHubApi ) {
+			$nera_stw_puc_vcs->setReleaseFilter(
+				static function ( $version_number, $release_object ) {
+					unset( $version_number, $release_object );
+					return true;
+				},
+				PucVcsApi::RELEASE_FILTER_SKIP_PRERELEASE,
+				20
+			);
+			$nera_stw_puc_vcs->enableReleaseAssets();
+		}
+
+		add_filter(
+			$nera_stw_update_checker->getUniqueName( 'vcs_update_detection_strategies' ),
+			static function ( $strategies ) {
+				if ( ! isset( $strategies['latest_tag'], $strategies['latest_release'] ) ) {
+					return $strategies;
+				}
+				$ordered = array(
+					'latest_tag'    => $strategies['latest_tag'],
+					'latest_release' => $strategies['latest_release'],
+				);
+				foreach ( $strategies as $key => $callback ) {
+					if ( isset( $ordered[ $key ] ) ) {
+						continue;
+					}
+					$ordered[ $key ] = $callback;
+				}
+				return $ordered;
+			},
+			10,
+			1
+		);
+
+		add_filter(
+			$nera_stw_update_checker->getUniqueName( 'request_info_result' ),
+			static function ( $info ) use ( $nera_stw_github_repo ) {
+				if ( ! is_object( $info ) || empty( $info->version ) ) {
+					return $info;
+				}
+				$ver = preg_replace( '/^v/i', '', (string) $info->version );
+				$tag = 'v' . $ver;
+				$path = (string) wp_parse_url( $nera_stw_github_repo, PHP_URL_PATH );
+				$parts = array_values( array_filter( explode( '/', trim( $path, '/' ) ) ) );
+				if ( count( $parts ) >= 2 ) {
+					$owner = $parts[0];
+					$repo  = $parts[1];
+					$info->download_url = sprintf(
+						'https://github.com/%s/%s/releases/download/%s/nera-spin-to-win-%s.zip',
+						$owner,
+						$repo,
+						$tag,
+						$ver
+					);
+				}
+				return $info;
+			},
+			10,
+			1
+		);
+	}
+}
 
 require_once NERA_STW_PLUGIN_DIR . 'includes/class-database.php';
 require_once NERA_STW_PLUGIN_DIR . 'includes/class-product-meta.php';

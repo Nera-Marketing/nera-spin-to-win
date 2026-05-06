@@ -4,7 +4,7 @@ Tags: woocommerce, lottery, spin wheel, competition
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.1.6
+Stable tag: 1.1.7
 License: GPLv2 or later
 
 Spin wheel for lottery competitions — spins from ticket purchases, site credit and physical prizes.
@@ -22,6 +22,9 @@ Spin wheel for lottery competitions — spins from ticket purchases, site credit
 3. Configure wheel segments and options per product as needed.
 
 == Changelog ==
+
+= 1.1.7 =
+* GitHub updates: align Plugin Update Checker with `nera-instant-win-threshold` — `main` branch, release list + semver tag order, and download the published `nera-spin-to-win-*.zip` release asset (fixes sites stuck when GitHub “latest” release is not the highest version).
 
 = 1.1.4 =
 * Release packaging aligned with `nera-instant-win-threshold`: `release.sh`, `build-wp-release-zip.php`, `readme.txt`, `plugin.json`; Dashboard → Updates icons via `assets/icon-128x128.png` and `assets/icon-256x256.png`.
