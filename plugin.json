@@ -1,0 +1,23 @@
+{
+	"name": "Nera Spin To Win",
+	"slug": "nera-spin-to-win",
+	"version": "1.1.5",
+	"homepage": "https://github.com/Nera-Marketing/nera-spin-to-win",
+	"download_url": "https://github.com/Nera-Marketing/nera-spin-to-win/releases/download/v1.1.5/nera-spin-to-win-1.1.5.zip",
+
+	"author": "Nera",
+	"author_homepage": "https://github.com/Nera-Marketing",
+
+	"requires": "6.0",
+	"tested": "6.8",
+	"requires_php": "7.4",
+	"last_updated": "2026-05-06 10:07:24",
+
+	"upgrade_notice": "Update for the latest fixes and compatibility.",
+
+	"sections": {
+		"description": "<p>Spin wheel for lottery competitions — ticket-based spins, site credit and physical prizes. Requires <strong>WooCommerce</strong>.</p>",
+		"installation": "<p>Install WooCommerce, then install and activate this plugin.</p>",
+		"changelog": "<p>Release notes: <a href=\"https://github.com/Nera-Marketing/nera-spin-to-win/releases\">GitHub releases</a>.</p>"
+	}
+}

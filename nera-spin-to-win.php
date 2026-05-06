@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Nera Spin To Win
  * Description: Spin wheel for lottery competitions — spins from ticket purchases, site credit and physical prizes.
- * Version: 1.1.3
+ * Version: 1.1.5
  * Author: Nera
  * Text Domain: nera-spin-to-win
  * Requires at least: 6.0
@@ -14,10 +14,15 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+define( 'NERA_STW_VERSION', '1.1.5' );
 
-define( 'NERA_STW_VERSION', '1.1.3' );
-
-// Auto-update checker — pulls releases from GitHub.
+/**
+ * Auto-update from GitHub (Plugin Update Checker v5.5).
+ *
+ * Plugin list / Dashboard → Updates thumbnail: PUC reads `assets/icon-128x128.png` and `assets/icon-256x256.png`
+ * from the installed package (WordPress.org-style naming). Same Nera branding assets as
+ * `nera-instant-win-threshold` — keep these files in sync when updating artwork.
+ */
 require_once plugin_dir_path( __FILE__ ) . 'lib/plugin-update-checker/load-v5p5.php';
 $nera_stw_update_checker = YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
 	'https://github.com/Nera-Marketing/nera-spin-to-win/',
