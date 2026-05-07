@@ -153,7 +153,7 @@ class Nera_STW_Hooks {
 		echo '<div class="w-full mb-8 p-6 rounded-2xl border border-primary/20 bg-secondary/80 shadow-sm">';
 		echo '<div class="flex flex-col sm:flex-row flex-wrap gap-3">';
 		foreach ( $links as $row ) {
-			echo '<a class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-indigo-600 text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-sm" href="' . esc_url( $row['url'] ) . '">';
+			echo '<a class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-sm" href="' . esc_url( $row['url'] ) . '">';
 			echo '<span class="material-symbols-outlined text-xl">casino</span>';
 			echo esc_html( sprintf( /* translators: %s: product name */ __( 'Spin the wheel — %s', 'nera-spin-to-win' ), $row['label'] ) );
 			echo '</a>';
@@ -197,7 +197,7 @@ class Nera_STW_Hooks {
 
 		echo '<div class="flex flex-col sm:flex-row flex-wrap gap-3">';
 		foreach ( $links as $row ) {
-			echo '<a class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-indigo-600 text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-sm" href="' . esc_url( $row['url'] ) . '">';
+			echo '<a class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-sm" href="' . esc_url( $row['url'] ) . '">';
 			echo '<span class="material-symbols-outlined text-xl">casino</span>';
 			echo esc_html( sprintf( /* translators: %s: product name */ __( 'Spin the wheel — %s', 'nera-spin-to-win' ), $row['label'] ) );
 			echo '</a>';
