@@ -226,7 +226,12 @@ export default function SpinToWinApp({ cfg }) {
           revolutions: turboMode ? 2 : 5,
         });
       } catch (err) {
-        openModal(strings.error || 'Something went wrong', String(err.message || err));
+        const technical = String(err.message || err);
+        const customBody =
+          strings.errorBody && String(strings.errorBody).trim() !== ''
+            ? strings.errorBody
+            : technical;
+        openModal(strings.error || 'Something went wrong', customBody);
         setSpinning(false);
         setTurbo(false);
       }
