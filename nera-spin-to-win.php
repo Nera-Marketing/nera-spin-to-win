@@ -130,6 +130,7 @@ require_once NERA_STW_PLUGIN_DIR . 'includes/class-product-meta.php';
 require_once NERA_STW_PLUGIN_DIR . 'includes/class-balances.php';
 require_once NERA_STW_PLUGIN_DIR . 'includes/class-order-grants.php';
 require_once NERA_STW_PLUGIN_DIR . 'includes/class-segment-stock.php';
+require_once NERA_STW_PLUGIN_DIR . 'includes/class-spin-audit.php';
 require_once NERA_STW_PLUGIN_DIR . 'includes/class-spin-service.php';
 require_once NERA_STW_PLUGIN_DIR . 'includes/class-spin-session.php';
 require_once NERA_STW_PLUGIN_DIR . 'includes/class-rest-controller.php';
@@ -139,6 +140,7 @@ require_once NERA_STW_PLUGIN_DIR . 'includes/class-admin-product.php';
 require_once NERA_STW_PLUGIN_DIR . 'includes/class-admin-physical-wins.php';
 require_once NERA_STW_PLUGIN_DIR . 'includes/class-frontend.php';
 require_once NERA_STW_PLUGIN_DIR . 'includes/class-assets.php';
+require_once NERA_STW_PLUGIN_DIR . 'includes/class-acf-copy-settings.php';
 
 // Register REST routes as early as possible after plugin file load.
 if ( class_exists( 'Nera_STW_REST_Controller' ) ) {
@@ -171,6 +173,8 @@ function nera_stw_init() {
 	if ( ! class_exists( 'WooCommerce' ) ) {
 		return;
 	}
+
+	Nera_STW_ACF_Copy_Settings::init();
 
 	Nera_STW_Database::maybe_upgrade();
 	Nera_STW_Hooks::init();

@@ -18,7 +18,7 @@ export default function PrizeList({ items, title }) {
           </h2>
         </div>
       </div>
-      <ul className="stw-side-scrollbar max-h-[min(420px,50vh)] space-y-3 overflow-y-auto pr-1 xl:max-h-none xl:min-h-0 xl:flex-1">
+      <ul className="stw-prize-scroll stw-side-scrollbar max-h-[min(420px,50vh)] space-y-3 overflow-y-auto pr-1 xl:max-h-none xl:min-h-0 xl:flex-1">
         {items.map((item, index) => (
           <li
             key={`${item.label}-${index}`}

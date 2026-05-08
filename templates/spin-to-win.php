@@ -38,7 +38,13 @@ if ( ! class_exists( 'Nera_STW_Product_Meta' ) || ! Nera_STW_Product_Meta::is_en
 	exit;
 }
 
-$title = $product->get_name();
+$hero_heading = $product->get_name();
+$hero_badge   = Nera_STW_ACF_Copy_Settings::get_hero_badge();
+$hero_intro   = Nera_STW_ACF_Copy_Settings::get_hero_intro();
+$override     = Nera_STW_ACF_Copy_Settings::get_hero_heading_override();
+if ( '' !== $override ) {
+	$hero_heading = $override;
+}
 get_header();
 ?>
 
@@ -67,22 +73,19 @@ get_header();
           class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.85)]"
           aria-hidden="true"
         ></span>
-        <?php esc_html_e( 'Spin to win', 'nera-spin-to-win' ); ?>
+        <?php echo esc_html( $hero_badge ); ?>
       </p>
       <h1
         class="font-heading text-3xl font-extrabold tracking-tight text-text-primary [text-wrap:balance] sm:text-4xl lg:text-[2.5rem] lg:leading-tight"
       >
-        <?php echo esc_html( $title ); ?>
+        <?php echo esc_html( $hero_heading ); ?>
       </h1>
       <div
         class="mx-auto mt-5 h-1 w-28 rounded-full bg-gradient-to-r from-transparent via-[#e8950a] to-transparent opacity-90"
         aria-hidden="true"
       ></div>
       <p class="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-text-secondary">
-        <?php esc_html_e(
-          'Use your spins from ticket purchases — every spin is a shot at site credit or prizes.',
-          'nera-spin-to-win',
-        ); ?>
+        <?php echo esc_html( $hero_intro ); ?>
       </p>
     </header>
     <?php if ( ! is_user_logged_in() ) : ?>
@@ -104,7 +107,7 @@ get_header();
     <?php else : ?>
       <div
         id="nera-spin-root"
-        class="nera-spin-to-win relative overflow-hidden rounded-[1.75rem] border border-amber-400/20 bg-gradient-to-br from-white via-secondary/80 to-amber-50/30 p-5 shadow-[0_32px_90px_-28px_rgba(192,23,46,0.18)] ring-1 ring-black/[0.05] sm:p-7 lg:p-8 xl:h-[60dvh] xl:overflow-y-hidden"
+        class="nera-spin-to-win relative rounded-[1.75rem] border border-amber-400/20 bg-gradient-to-br from-white via-secondary/80 to-amber-50/30 p-5 shadow-[0_32px_90px_-28px_rgba(192,23,46,0.18)] ring-1 ring-black/[0.05] sm:p-7 lg:p-8"
       >
         <div
           class="pointer-events-none absolute -right-16 top-0 h-56 w-56 rounded-full bg-[#c0172e]/[0.06] blur-3xl"

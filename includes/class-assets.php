@@ -165,7 +165,7 @@ class Nera_STW_Assets {
 	 * @return array
 	 */
 	private static function strings() {
-		return array(
+		$defaults = array(
 			'spinNow'              => __( 'Spin now', 'nera-spin-to-win' ),
 			'turbo'                => __( 'Turbo mode', 'nera-spin-to-win' ),
 			'loading'              => __( 'Loading\u2026', 'nera-spin-to-win' ),
@@ -183,6 +183,7 @@ class Nera_STW_Assets {
 			'wonPhysical'          => __( 'Your prize will be fulfilled \u2014 our team may email you if needed.', 'nera-spin-to-win' ),
 			'spinAgain'            => __( 'Spin now', 'nera-spin-to-win' ),
 			'error'                => __( 'Something went wrong', 'nera-spin-to-win' ),
+			'errorBody'            => '',
 			'disabled'             => __( 'Spin To Win is temporarily unavailable.', 'nera-spin-to-win' ),
 			'tooltipTurbo'         => __( 'Spin immediately using a shorter wheel animation.', 'nera-spin-to-win' ),
 			'tooltipSpin'          => __( 'Spin the wheel with the full-length animation.', 'nera-spin-to-win' ),
@@ -190,10 +191,21 @@ class Nera_STW_Assets {
 			'tooltipClose'         => __( 'Close this message', 'nera-spin-to-win' ),
 			'competitions'         => __( 'Competitions', 'nera-spin-to-win' ),
 			'tooltipCompetitions'  => __( 'Browse competitions to buy more tickets', 'nera-spin-to-win' ),
-			// Used in SpinControls.jsx but were missing from the theme's strings array:
 			'viewAllPrizes'        => __( 'View all prizes', 'nera-spin-to-win' ),
 			'tooltipViewAllPrizes' => __( 'See the full prize list', 'nera-spin-to-win' ),
+			'cancel'               => __( 'Cancel', 'nera-spin-to-win' ),
+			'turboConfirm'         => __( 'Confirm', 'nera-spin-to-win' ),
+			'turboConfirmTitle'    => __( 'Turbo Spin', 'nera-spin-to-win' ),
+			'turboConfirmBody'     => __( 'Are you sure you want to use turbo spin, it will reveal all prizes instantly', 'nera-spin-to-win' ),
+			'turboResultsWon'      => __( 'You won {count} prize{plural}!', 'nera-spin-to-win' ),
+			'turboResultsNone'     => __( 'Better luck next time!', 'nera-spin-to-win' ),
 		);
+
+		if ( class_exists( 'Nera_STW_ACF_Copy_Settings' ) ) {
+			return Nera_STW_ACF_Copy_Settings::merge_localized_strings( $defaults );
+		}
+
+		return $defaults;
 	}
 
 	/**

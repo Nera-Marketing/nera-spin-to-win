@@ -57,6 +57,76 @@ body.nera-spin-to-win-page .entry-content {
   }
 }
 
+/* ===========================================================
+   Wheel — responsive clipping fixes
+   =========================================================== */
+
+/* Belt-and-suspenders: prevent the card from clipping the wheel's glow/shadow.
+   The card border-radius lives on #nera-spin-root itself, so removing overflow
+   does not affect the rounded corners — it only allows the wheel's box-shadow
+   to paint beyond the card edge. The decorative blobs inside the card are
+   semi-transparent and blur-3xl, so any minor overflow is imperceptible. */
+body.nera-spin-to-win-page #nera-spin-root {
+  overflow: visible !important;
+}
+
+/* Belt-and-suspenders: remove the fixed viewport-height constraint that could
+   clip the wheel + controls stack on short screens (e.g. 768 px-tall laptops). */
+@media (min-width: 80rem) {
+  body.nera-spin-to-win-page #nera-spin-root {
+    height: auto !important;
+  }
+}
+
+/* On very narrow phones (< 480 px) cap the wheel shell so the glow does not
+   extend into the page margins and controls remain fully visible below. */
+@media (max-width: 29.9375rem) {
+  body.nera-spin-to-win-page .stw-wheel-shell {
+    max-width: calc(100vw - 4.5rem) !important;
+  }
+}
+
+/* On short landscape viewports prevent the wheel from being taller than the
+   visible area so controls below it are reachable without scrolling past. */
+@media (max-height: 600px) {
+  body.nera-spin-to-win-page .stw-wheel-shell {
+    max-width: min(52dvh, calc(100vw - 4.5rem)) !important;
+  }
+}
+
+/* ===========================================================
+   Side lists — height bounding so the card stays compact
+   =========================================================== */
+
+/* On xl+ the Tailwind xl:max-h-none would let the lists expand to all rows.
+   Give both side lists a real panel height so they visually track the wheel
+   section while still scrolling internally. */
+@media (min-width: 80rem) {
+  body.nera-spin-to-win-page {
+    --stw-side-panel-height: clamp(430px, 58dvh, 590px);
+  }
+
+  body.nera-spin-to-win-page .stw-prize-scroll,
+  body.nera-spin-to-win-page .stw-history-scroll {
+    height: var(--stw-side-panel-height) !important;
+    max-height: var(--stw-side-panel-height) !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* On shorter xl viewports (laptops ≤ 820px tall) scale the wheel down so
+   it sits comfortably inside the shorter card alongside bounded lists. */
+@media (min-width: 80rem) and (max-height: 820px) {
+  body.nera-spin-to-win-page {
+    --stw-side-panel-height: clamp(400px, 56dvh, 500px);
+  }
+
+  body.nera-spin-to-win-page .stw-wheel-shell {
+    max-width: clamp(320px, 42dvh, 480px) !important;
+  }
+}
+
 @media (min-width: 64rem) {
   body.nera-spin-to-win-page #site-footer .lg\:grid-cols-5 {
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;

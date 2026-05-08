@@ -112,6 +112,7 @@ class Nera_STW_Admin_Product {
 			function rowTemplate(id) {
 				var uid = id || 'seg_' + Math.random().toString(36).slice(2, 12);
 				return '<tr class="nera-stw-row" data-segment-id="' + uid + '">' +
+					'<td style="text-align:center;"><input type="checkbox" class="nera-stw-enabled" checked title="<?php echo esc_js( __( 'Enabled', 'nera-spin-to-win' ) ); ?>" /></td>' +
 					'<td><input type="text" class="widefat nera-stw-label" placeholder="<?php echo esc_js( __( 'Label', 'nera-spin-to-win' ) ); ?>" /></td>' +
 					'<td><select class="nera-stw-type">' +
 						'<option value="no_win"><?php echo esc_js( __( 'Try again', 'nera-spin-to-win' ) ); ?></option>' +
@@ -146,6 +147,7 @@ class Nera_STW_Admin_Product {
 					var imageUrl = String($r.find('.nera-stw-image-url').val() || '').trim();
 					var seg = {
 						id: String(id),
+						enabled: $r.find('.nera-stw-enabled').is(':checked'),
 						label: $r.find('.nera-stw-label').val() || '',
 						type: type,
 						weight: parseFloat($r.find('.nera-stw-weight').val()) || 0.0001
@@ -199,7 +201,7 @@ class Nera_STW_Admin_Product {
 					$('.nera-stw-empty').remove();
 
 					if (parsed.length === 0) {
-						$('#nera-stw-rows').append('<tr class="nera-stw-empty"><td colspan="8">' +
+						$('#nera-stw-rows').append('<tr class="nera-stw-empty"><td colspan="9">' +
 							escHtml('<?php echo esc_js( __( 'No segments yet. Add a row.', 'nera-spin-to-win' ) ); ?>') +
 							'</td></tr>');
 						return;
@@ -214,6 +216,10 @@ class Nera_STW_Admin_Product {
 						$('#nera-stw-rows').append($row);
 
 						$row.find('.nera-stw-label').val(seg.label || '');
+						$row.find('.nera-stw-enabled').prop(
+							'checked',
+							typeof seg.enabled === 'boolean' ? seg.enabled : true
+						);
 						$row.find('.nera-stw-weight').val(
 							(typeof seg.weight === 'number' && seg.weight > 0) ? seg.weight : 1
 						);
@@ -304,6 +310,7 @@ class Nera_STW_Admin_Product {
 					var imageUrl = String($r.find('.nera-stw-image-url').val() || '').trim();
 					var seg = {
 						id: String(id),
+						enabled: $r.find('.nera-stw-enabled').is(':checked'),
 						label: $r.find('.nera-stw-label').val() || '',
 						type: type,
 						weight: parseFloat($r.find('.nera-stw-weight').val()) || 0.0001
@@ -363,6 +370,7 @@ class Nera_STW_Admin_Product {
 				<table class="widefat" style="max-width: 1200px;">
 					<thead>
 						<tr>
+							<th style="width:60px;text-align:center;" title="<?php esc_attr_e( 'Untick to exclude this segment from the draw without deleting it.', 'nera-spin-to-win' ); ?>"><?php esc_html_e( 'Enabled', 'nera-spin-to-win' ); ?></th>
 							<th><?php esc_html_e( 'Label', 'nera-spin-to-win' ); ?></th>
 							<th><?php esc_html_e( 'Type', 'nera-spin-to-win' ); ?></th>
 							<th><?php esc_html_e( 'Weight', 'nera-spin-to-win' ); ?></th>
@@ -376,10 +384,11 @@ class Nera_STW_Admin_Product {
 					<tbody id="nera-stw-rows">
 						<?php
 						if ( empty( $rows ) ) {
-							echo '<tr class="nera-stw-empty"><td colspan="8">' . esc_html__( 'No segments yet. Add a row.', 'nera-spin-to-win' ) . '</td></tr>';
+							echo '<tr class="nera-stw-empty"><td colspan="9">' . esc_html__( 'No segments yet. Add a row.', 'nera-spin-to-win' ) . '</td></tr>';
 						} else {
 							foreach ( $rows as $r ) {
 								$id        = isset( $r['id'] ) ? esc_attr( $r['id'] ) : 'seg_' . wp_generate_password( 8, false );
+								$is_enabled = array_key_exists( 'enabled', (array) $r ) ? (bool) $r['enabled'] : true;
 								$label     = isset( $r['label'] ) ? esc_attr( $r['label'] ) : '';
 								$type      = isset( $r['type'] ) ? esc_attr( $r['type'] ) : 'no_win';
 								$w         = isset( $r['weight'] ) ? esc_attr( (string) $r['weight'] ) : '1';
@@ -396,6 +405,7 @@ class Nera_STW_Admin_Product {
 								}
 								?>
 								<tr class="nera-stw-row" data-segment-id="<?php echo esc_attr( $id ); ?>">
+									<td style="text-align:center;"><input type="checkbox" class="nera-stw-enabled" <?php checked( $is_enabled ); ?> title="<?php esc_attr_e( 'Enabled', 'nera-spin-to-win' ); ?>" /></td>
 									<td><input type="text" class="widefat nera-stw-label" value="<?php echo esc_attr( $label ); ?>" /></td>
 									<td>
 										<select class="nera-stw-type">
@@ -484,11 +494,13 @@ class Nera_STW_Admin_Product {
 			if ( $weight <= 0 ) {
 				$weight = 0.0001;
 			}
-			$seg = array(
-				'id'     => $id,
-				'label'  => isset( $row['label'] ) ? sanitize_text_field( (string) $row['label'] ) : '',
-				'type'   => $type,
-				'weight' => $weight,
+			$enabled = array_key_exists( 'enabled', $row ) ? (bool) $row['enabled'] : true;
+			$seg     = array(
+				'id'      => $id,
+				'enabled' => $enabled,
+				'label'   => isset( $row['label'] ) ? sanitize_text_field( (string) $row['label'] ) : '',
+				'type'    => $type,
+				'weight'  => $weight,
 			);
 			if ( '' === $seg['label'] ) {
 				$seg['label'] = $id;
@@ -515,7 +527,15 @@ class Nera_STW_Admin_Product {
 			$segments[] = $seg;
 		}
 
-		update_post_meta( $post_id, Nera_STW_Product_Meta::META_SEGMENTS, wp_json_encode( $segments ) );
+		// wp_slash() compensates for the wp_unslash() that update_metadata() runs
+		// internally — without it, JSON-escaped unicode like £ (£) loses its
+		// backslash and is persisted as the literal text `u00a3`. JSON_UNESCAPED_UNICODE
+		// keeps printable non-ASCII chars as themselves, sidestepping the escape entirely.
+		update_post_meta(
+			$post_id,
+			Nera_STW_Product_Meta::META_SEGMENTS,
+			wp_slash( wp_json_encode( $segments, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) )
+		);
 
 		Nera_STW_Segment_Stock::sync_initial_from_segments( $post_id, Nera_STW_Product_Meta::get_segments( $post_id ) );
 	}

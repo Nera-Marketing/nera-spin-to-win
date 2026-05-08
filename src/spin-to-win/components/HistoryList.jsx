@@ -34,7 +34,7 @@ export default function HistoryList({
           {remainingSpins} {spinsLeftLabel}
         </span>
       </div>
-      <ul className="stw-side-scrollbar max-h-[min(420px,50vh)] space-y-2 overflow-y-auto pr-1 text-sm text-text-secondary xl:max-h-none xl:min-h-0 xl:flex-1">
+      <ul className="stw-history-scroll stw-side-scrollbar max-h-[min(420px,50vh)] space-y-2 overflow-y-auto pr-1 text-sm text-text-secondary xl:max-h-none xl:min-h-0 xl:flex-1">
         {rows.length === 0 ? (
           <li className="rounded-2xl border-2 border-dashed border-amber-400/25 bg-white/60 px-4 py-8 text-center text-sm italic leading-relaxed text-text-secondary">
             {emptyMessage}

@@ -78,6 +78,24 @@ class Nera_STW_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			self::NS,
+			'/product/(?P<id>\d+)/spin/turbo',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'post_spin_turbo' ),
+				'permission_callback' => array( __CLASS__, 'require_login' ),
+				'args'                => array(
+					'id' => array(
+						'required'          => true,
+						'validate_callback' => function ( $v ) {
+							return absint( $v ) > 0;
+						},
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -179,6 +197,31 @@ class Nera_STW_REST_Controller {
 					'acknowledged' => $ok,
 				)
 			);
+		} finally {
+			Nera_STW_Spin_Session::release_mysql_lock( $user_id, $product_id );
+		}
+	}
+
+	/**
+	 * POST spin/turbo — resolve all remaining spins at once and return the batch.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function post_spin_turbo( $request ) {
+		$product_id = absint( $request['id'] );
+		$user_id    = get_current_user_id();
+
+		Nera_STW_Spin_Session::acquire_mysql_lock( $user_id, $product_id );
+		try {
+			// Clear any stale pending session before a batch run.
+			Nera_STW_Spin_Session::acknowledge( $user_id, $product_id );
+
+			$batch = Nera_STW_Spin_Service::spin_all( $user_id, $product_id );
+			if ( is_wp_error( $batch ) ) {
+				return $batch;
+			}
+			return rest_ensure_response( $batch );
 		} finally {
 			Nera_STW_Spin_Session::release_mysql_lock( $user_id, $product_id );
 		}

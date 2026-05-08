@@ -47,7 +47,13 @@ class Nera_STW_Spin_Service {
 			return new WP_Error( 'stw_no_eligible', __( 'No eligible prizes available.', 'nera-spin-to-win' ), array( 'status' => 500 ) );
 		}
 
-		$win_index = self::weighted_pick_index( $segments, $eligible );
+		$server_seed = bin2hex( random_bytes( 32 ) );
+		$client_seed = bin2hex( random_bytes( 32 ) );
+		$nonce       = Nera_STW_Spin_Audit::next_nonce( $user_id, $product_id );
+		$spin_uid    = Nera_STW_Spin_Audit::uuid4();
+
+		$pick      = self::weighted_pick_index_seeded( $segments, $eligible, $server_seed, $client_seed, $nonce );
+		$win_index = $pick['index'];
 		$seg       = $segments[ $win_index ];
 
 		// Physical: claim stock.
@@ -72,13 +78,93 @@ class Nera_STW_Spin_Service {
 
 		self::log_history( $user_id, $product_id, null, $seg, $fulfill );
 
+		Nera_STW_Spin_Audit::record(
+			array(
+				'spin_uid'        => $spin_uid,
+				'user_id'         => $user_id,
+				'product_id'      => $product_id,
+				'server_seed'     => $server_seed,
+				'client_seed'     => $client_seed,
+				'nonce'           => $nonce,
+				'eligible'        => self::build_audit_eligible_snapshot( $segments, $eligible ),
+				'total_weight'    => $pick['total'],
+				'cut'             => $pick['cut'],
+				'outcome_index'   => $win_index,
+				'outcome_segment' => $seg['id'],
+			)
+		);
+
 		return array(
+			'spin_uid'        => $spin_uid,
 			'winning_index'   => $win_index,
 			'prize_type'      => $seg['type'],
 			'prize_label'     => $seg['label'],
 			'remaining_spins' => Nera_STW_Balances::get_remaining( $user_id, $product_id ),
 			'details'         => $fulfill,
 		);
+	}
+
+	/**
+	 * Resolve every remaining spin in one call (turbo mode). Each spin is fully
+	 * resolved by spin() — RNG, audit, fulfilment, history are all preserved per spin.
+	 *
+	 * Stops early if a spin returns WP_Error or another process consumes a spin
+	 * mid-batch. Capped at 50 to bound request time.
+	 *
+	 * @param int $user_id    User ID.
+	 * @param int $product_id Product ID.
+	 * @return array{results: array, remaining_spins: int}|WP_Error
+	 */
+	public static function spin_all( $user_id, $product_id ) {
+		if ( ! nera_stw_feature_enabled() ) {
+			return new WP_Error( 'stw_disabled', __( 'Spin To Win is disabled.', 'nera-spin-to-win' ), array( 'status' => 403 ) );
+		}
+		if ( ! Nera_STW_Product_Meta::is_enabled( $product_id ) ) {
+			return new WP_Error( 'stw_not_enabled', __( 'Spin To Win is not enabled for this competition.', 'nera-spin-to-win' ), array( 'status' => 400 ) );
+		}
+
+		$remaining = Nera_STW_Balances::get_remaining( $user_id, $product_id );
+		if ( $remaining < 1 ) {
+			return new WP_Error( 'stw_no_spins', __( 'No spins remaining.', 'nera-spin-to-win' ), array( 'status' => 400 ) );
+		}
+
+		$cap     = min( $remaining, 50 );
+		$results = array();
+
+		for ( $i = 0; $i < $cap; $i++ ) {
+			if ( Nera_STW_Balances::get_remaining( $user_id, $product_id ) < 1 ) {
+				break;
+			}
+			$result = self::spin( $user_id, $product_id );
+			if ( is_wp_error( $result ) ) {
+				break;
+			}
+			$results[] = $result;
+		}
+
+		return array(
+			'results'         => $results,
+			'remaining_spins' => Nera_STW_Balances::get_remaining( $user_id, $product_id ),
+		);
+	}
+
+	/**
+	 * Compact eligibility snapshot for the audit row.
+	 *
+	 * @param array $segments All segments.
+	 * @param int[] $eligible Eligible indices.
+	 * @return array<int, array{i:int,id:string,w:float}>
+	 */
+	private static function build_audit_eligible_snapshot( $segments, $eligible ) {
+		$out = array();
+		foreach ( $eligible as $i ) {
+			$out[] = array(
+				'i'  => (int) $i,
+				'id' => isset( $segments[ $i ]['id'] ) ? (string) $segments[ $i ]['id'] : '',
+				'w'  => (float) ( $segments[ $i ]['weight'] ?? 0 ),
+			);
+		}
+		return $out;
 	}
 
 	/**
@@ -91,6 +177,9 @@ class Nera_STW_Spin_Service {
 	private static function build_eligible_indices( $product_id, $segments ) {
 		$eligible = array();
 		foreach ( $segments as $i => $seg ) {
+			if ( empty( $seg['enabled'] ) ) {
+				continue;
+			}
 			if ( 'physical' === $seg['type'] ) {
 				$r = Nera_STW_Segment_Stock::get_remaining( $product_id, $seg['id'] );
 				if ( $r < 1 ) {
@@ -103,27 +192,55 @@ class Nera_STW_Spin_Service {
 	}
 
 	/**
-	 * @param array $segments All segments.
-	 * @param int[] $eligible Eligible indices.
+	 * Seeded weighted pick. Deterministic given the same (server_seed, client_seed, nonce):
+	 * any audit row can be replayed and verified.
+	 *
+	 *   r       = HMAC-SHA256(server_seed, client_seed:nonce) → first 13 hex → /2^53
+	 *   cut     = r * total_weight
+	 *   outcome = first eligible segment whose accumulated weight >= cut
+	 *
+	 * @param array  $segments    All segments.
+	 * @param int[]  $eligible    Eligible indices.
+	 * @param string $server_seed 64-char hex.
+	 * @param string $client_seed 64-char hex.
+	 * @param int    $nonce       Per-(user, product) counter.
+	 * @return array{index:int, cut:float, total:float}
 	 */
-	private static function weighted_pick_index( $segments, $eligible ) {
+	public static function weighted_pick_index_seeded( $segments, $eligible, $server_seed, $client_seed, $nonce ) {
 		$total = 0.0;
 		foreach ( $eligible as $i ) {
 			$total += (float) $segments[ $i ]['weight'];
 		}
 		if ( $total <= 0 ) {
-			return $eligible[0];
+			return array(
+				'index' => $eligible[0],
+				'cut'   => 0.0,
+				'total' => 0.0,
+			);
 		}
-		$r   = (float) wp_rand( 0, 1000000 ) / 1000000.0;
-		$acc = 0.0;
+
+		// 14 hex chars = 56 bits; mask to 53 → unbiased uniform in [0, 1).
+		$hex = hash_hmac( 'sha256', $client_seed . ':' . $nonce, $server_seed );
+		$u53 = hexdec( substr( $hex, 0, 14 ) ) & ( ( 1 << 53 ) - 1 );
+		$r   = $u53 / (float) ( 1 << 53 );
 		$cut = $r * $total;
+
+		$acc = 0.0;
 		foreach ( $eligible as $i ) {
 			$acc += (float) $segments[ $i ]['weight'];
 			if ( $cut <= $acc ) {
-				return $i;
+				return array(
+					'index' => (int) $i,
+					'cut'   => $cut,
+					'total' => $total,
+				);
 			}
 		}
-		return $eligible[ count( $eligible ) - 1 ];
+		return array(
+			'index' => (int) $eligible[ count( $eligible ) - 1 ],
+			'cut'   => $cut,
+			'total' => $total,
+		);
 	}
 
 	/**
