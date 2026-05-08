@@ -112,7 +112,11 @@ export default function SpinModal({
             ? 'opacity-100 scale-100 translate-y-0'
             : 'opacity-0 scale-[0.98] translate-y-1'
         } ${
-          variant === 'prizes' ? 'max-w-2xl text-left' : 'max-w-md text-center'
+          variant === 'prizes'
+            ? 'max-w-2xl text-left'
+            : variant === 'turbo-results'
+              ? 'max-w-2xl text-center'
+              : 'max-w-md text-center'
         }`}
         onTransitionEnd={(event) => {
           if (event.target !== event.currentTarget) {
@@ -127,7 +131,7 @@ export default function SpinModal({
           className="h-1.5 w-full bg-gradient-to-r from-[#c0172e] via-amber-400 to-[#c0172e]"
           aria-hidden
         />
-        <div className="relative p-6 pt-5 sm:p-7">
+        <div className="relative p-6 pt-5">
           <button
             type="button"
             className="absolute right-4 top-4 z-[1] cursor-help rounded-xl p-1.5 text-text-secondary transition-colors hover:bg-secondary hover:text-text-primary"
@@ -137,7 +141,7 @@ export default function SpinModal({
           >
             &times;
           </button>
-          <h3 className="font-heading text-xl font-extrabold text-text-primary">{title}</h3>
+          <h3 className={`mb-4 font-heading font-extrabold text-text-primary ${variant === 'turbo-results' ? 'text-3xl' : 'text-xl'}`}>{title}</h3>
           {body ? <p className="mt-2 text-sm leading-relaxed text-text-secondary">{body}</p> : null}
           {variant === 'prizes' ? (
             <ul className="mt-6 grid max-h-[min(60vh,520px)] grid-cols-2 gap-3 overflow-y-auto pr-1">
@@ -187,6 +191,42 @@ export default function SpinModal({
                 {strings.competitions || 'Competitions'}
               </a>
             </div>
+          ) : variant === 'turbo-confirm' ? (
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                className="inline-flex min-h-[44px] cursor-pointer items-center justify-center rounded-2xl bg-gradient-to-b from-[#fff7ed] to-[#ffedd5] px-5 font-bold leading-none text-[#c0172e] shadow-[inset_0_1px_0_rgba(255,255,255,0.85),0_4px_0_0_#b45309,0_12px_28px_-8px_rgba(217,119,6,0.35)] ring-1 ring-amber-400/25 transition-[transform,box-shadow] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.85),0_3px_0_0_#b45309] active:translate-y-0.5"
+                onClick={onClose}
+              >
+                {strings.cancel || 'Cancel'}
+              </button>
+              <button
+                type="button"
+                className="inline-flex min-h-[44px] cursor-pointer items-center justify-center rounded-2xl bg-gradient-to-b from-[#d41f35] to-[#9f1239] px-6 font-bold leading-none text-white shadow-[0_4px_0_0_#6b0f1c,0_12px_32px_-8px_rgba(192,23,46,0.5)] transition-[transform,opacity] hover:opacity-95 active:translate-y-0.5"
+                onClick={onTurbo}
+              >
+                {strings.turboConfirm || 'Confirm'}
+              </button>
+            </div>
+          ) : variant === 'turbo-results' ? (
+            <ul className="mt-6 max-h-[min(70vh,560px)] divide-y divide-gray-100 overflow-y-auto text-left">
+              {(prizeItems || []).map((item, index) => (
+                <li key={`${item.label}-${index}`} className="flex items-center gap-4 py-4 pr-4">
+                  <span
+                    className="h-3.5 w-3.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: item.backgroundColor || '#c0172e' }}
+                    aria-hidden
+                  />
+                  <span className="flex-1 text-base font-semibold text-text-primary">{item.label}</span>
+                  {item.kind === 'wallet' && item.amount ? (
+                    <span className="text-base font-bold text-success">{item.amount}</span>
+                  ) : null}
+                  {item.kind === 'no_win' ? (
+                    <span className="text-sm text-text-secondary">{strings.tryAgain || 'No win'}</span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
           ) : (
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <button

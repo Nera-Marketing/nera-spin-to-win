@@ -193,6 +193,12 @@ class Nera_STW_Assets {
 			'tooltipCompetitions'  => __( 'Browse competitions to buy more tickets', 'nera-spin-to-win' ),
 			'viewAllPrizes'        => __( 'View all prizes', 'nera-spin-to-win' ),
 			'tooltipViewAllPrizes' => __( 'See the full prize list', 'nera-spin-to-win' ),
+			'cancel'               => __( 'Cancel', 'nera-spin-to-win' ),
+			'turboConfirm'         => __( 'Confirm', 'nera-spin-to-win' ),
+			'turboConfirmTitle'    => __( 'Turbo Spin', 'nera-spin-to-win' ),
+			'turboConfirmBody'     => __( 'Are you sure you want to use turbo spin, it will reveal all prizes instantly', 'nera-spin-to-win' ),
+			'turboResultsWon'      => __( 'You won {count} prize{plural}!', 'nera-spin-to-win' ),
+			'turboResultsNone'     => __( 'Better luck next time!', 'nera-spin-to-win' ),
 		);
 
 		if ( class_exists( 'Nera_STW_ACF_Copy_Settings' ) ) {

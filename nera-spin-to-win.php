@@ -130,6 +130,7 @@ require_once NERA_STW_PLUGIN_DIR . 'includes/class-product-meta.php';
 require_once NERA_STW_PLUGIN_DIR . 'includes/class-balances.php';
 require_once NERA_STW_PLUGIN_DIR . 'includes/class-order-grants.php';
 require_once NERA_STW_PLUGIN_DIR . 'includes/class-segment-stock.php';
+require_once NERA_STW_PLUGIN_DIR . 'includes/class-spin-audit.php';
 require_once NERA_STW_PLUGIN_DIR . 'includes/class-spin-service.php';
 require_once NERA_STW_PLUGIN_DIR . 'includes/class-spin-session.php';
 require_once NERA_STW_PLUGIN_DIR . 'includes/class-rest-controller.php';

@@ -67,11 +67,13 @@ class Nera_STW_Product_Meta {
 			if ( $weight <= 0 ) {
 				$weight = 0.0001;
 			}
-			$seg = array(
-				'id'     => $id,
-				'label'  => isset( $row['label'] ) ? sanitize_text_field( (string) $row['label'] ) : $id,
-				'type'   => $type,
-				'weight' => $weight,
+			$enabled = array_key_exists( 'enabled', $row ) ? (bool) $row['enabled'] : true;
+			$seg     = array(
+				'id'      => $id,
+				'label'   => isset( $row['label'] ) ? sanitize_text_field( (string) $row['label'] ) : $id,
+				'type'    => $type,
+				'weight'  => $weight,
+				'enabled' => $enabled,
 			);
 			$image_id = isset( $row['image_id'] ) ? absint( $row['image_id'] ) : 0;
 			if ( $image_id > 0 ) {
@@ -115,9 +117,10 @@ class Nera_STW_Product_Meta {
 		$items    = array();
 		foreach ( $segments as $i => $seg ) {
 			$item = array(
-				'index' => $i,
-				'label' => $seg['label'],
-				'type'  => $seg['type'],
+				'index'   => $i,
+				'label'   => $seg['label'],
+				'type'    => $seg['type'],
+				'enabled' => ! empty( $seg['enabled'] ),
 			);
 			if ( ! empty( $seg['image_url'] ) ) {
 				$item['image_url'] = $seg['image_url'];

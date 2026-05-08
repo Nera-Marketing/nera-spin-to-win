@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { fetchState, postAckSpin, postSpin } from './api/stwApi.js';
+import { fetchState, postAckSpin, postSpin, postTurboSpin } from './api/stwApi.js';
 import { formatHistoryRow } from './utils/history.js';
 import HistoryList from './components/HistoryList.jsx';
 import PrizeList from './components/PrizeList.jsx';
@@ -33,6 +33,8 @@ export default function SpinToWinApp({ cfg }) {
   const [error, setError] = useState('');
   const [spinning, setSpinning] = useState(false);
   const [turbo, setTurbo] = useState(false);
+  const [turboRunning, setTurboRunning] = useState(false);
+  const [turboResultItems, setTurboResultItems] = useState([]);
   const [spinRequest, setSpinRequest] = useState(null);
   const [modal, setModal] = useState({
     open: false,
@@ -239,6 +241,73 @@ export default function SpinToWinApp({ cfg }) {
     [cfg, openModal, spinning, state, strings, wheelItems.length],
   );
 
+  const triggerTurboAll = useCallback(async () => {
+    if (spinning || turboRunning) {
+      return;
+    }
+    if ((state?.remaining_spins ?? 0) < 1) {
+      openModal(
+        strings.noSpins || 'No spins left',
+        strings.noSpinsBody || 'Purchase more tickets to earn spins.',
+        'noSpins',
+      );
+      return;
+    }
+
+    setTurboRunning(true);
+    try {
+      const batch = await postTurboSpin(cfg);
+      const currency = cfg.currencySymbol || '£';
+
+      const resultItems = (batch.results || []).map((r) => {
+        const kind = (r.details && r.details.kind) || r.prize_type;
+        const amount = r.details && r.details.amount != null ? `${currency}${r.details.amount}` : '';
+        return {
+          label: r.prize_label || '',
+          kind,
+          amount,
+          backgroundColor: r.prize_type === 'no_win' ? '#94a3b8' : '#c0172e',
+        };
+      });
+
+      const wonCount = resultItems.filter((i) => i.kind !== 'no_win').length;
+      const wonTemplate = strings.turboResultsWon || 'You won {count} prize(s)!';
+      const wonTitle = wonTemplate
+        .replace('{count}', String(wonCount))
+        .replace('{plural}', wonCount === 1 ? '' : 's');
+      const title = wonCount > 0 ? wonTitle : (strings.turboResultsNone || 'Better luck next time!');
+
+      setState((prev) => {
+        if (!prev) {
+          return prev;
+        }
+        const newRows = (batch.results || []).map((r) => ({
+          prize_label: r.prize_label || '',
+          prize_type: r.prize_type,
+          created_at: new Date().toISOString().slice(0, 19).replace('T', ' '),
+        }));
+        const nextHistory = [...newRows, ...(Array.isArray(prev.history) ? prev.history : [])].slice(0, 20);
+        return {
+          ...prev,
+          remaining_spins: batch.remaining_spins ?? 0,
+          history: nextHistory,
+        };
+      });
+
+      setTurboResultItems(resultItems);
+      openModal(title, '', 'turbo-results');
+    } catch (err) {
+      const technical = String(err.message || err);
+      const customBody =
+        strings.errorBody && String(strings.errorBody).trim() !== ''
+          ? strings.errorBody
+          : technical;
+      openModal(strings.error || 'Something went wrong', customBody);
+    } finally {
+      setTurboRunning(false);
+    }
+  }, [cfg, openModal, spinning, state, strings, turboRunning]);
+
   const onSpinEnd = useCallback(
     async (requestId) => {
       if (!spinRequest || requestId !== spinRequest.id) {
@@ -380,7 +449,7 @@ export default function SpinToWinApp({ cfg }) {
           <SpinControls
             strings={strings}
             turbo={turbo}
-            spinning={spinning}
+            spinning={spinning || turboRunning}
             onViewPrizes={() => {
               setModal({
                 open: true,
@@ -390,7 +459,20 @@ export default function SpinToWinApp({ cfg }) {
               });
             }}
             onTurboSpin={() => {
-              triggerSpin(true);
+              if ((state?.remaining_spins ?? 0) < 1) {
+                openModal(
+                  strings.noSpins || 'No spins left',
+                  strings.noSpinsBody || 'Purchase more tickets to earn spins.',
+                  'noSpins',
+                );
+                return;
+              }
+              openModal(
+                strings.turboConfirmTitle || 'Turbo Spin',
+                strings.turboConfirmBody ||
+                  'Are you sure you want to use turbo spin, it will reveal all prizes instantly',
+                'turbo-confirm',
+              );
             }}
             onFullSpin={() => {
               triggerSpin(false);
@@ -417,7 +499,7 @@ export default function SpinToWinApp({ cfg }) {
         title={modal.title}
         body={modal.body}
         variant={modal.variant}
-        prizeItems={allWheelItems}
+        prizeItems={modal.variant === 'turbo-results' ? turboResultItems : allWheelItems}
         competitionsUrl={cfg.competitionsUrl || '/'}
         onClose={closeModal}
         onSpin={() => {
@@ -426,7 +508,7 @@ export default function SpinToWinApp({ cfg }) {
         }}
         onTurbo={() => {
           closeModal();
-          triggerSpin(true);
+          triggerTurboAll();
         }}
       />
     </>

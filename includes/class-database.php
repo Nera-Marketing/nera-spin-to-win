@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Nera_STW_Database {
 
-	const DB_VERSION = '1.1.0';
+	const DB_VERSION = '1.2.0';
 	const OPTION_KEY = 'nera_stw_db_version';
 
 	/**
@@ -30,6 +30,7 @@ class Nera_STW_Database {
 		$history  = $wpdb->prefix . 'nera_stw_history';
 		$stock    = $wpdb->prefix . 'nera_stw_segment_stock';
 		$pending  = $wpdb->prefix . 'nera_stw_pending_spins';
+		$audit    = $wpdb->prefix . 'nera_stw_spin_audit';
 
 		$sql = "
 CREATE TABLE {$balances} (
@@ -97,6 +98,26 @@ CREATE TABLE {$pending} (
   UNIQUE KEY user_product (user_id, product_id),
   KEY product_id (product_id),
   KEY status (status)
+) {$charset_collate};
+
+CREATE TABLE {$audit} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  spin_uid char(36) NOT NULL,
+  user_id bigint(20) unsigned NOT NULL,
+  product_id bigint(20) unsigned NOT NULL,
+  server_seed char(64) NOT NULL,
+  client_seed char(64) NOT NULL,
+  nonce bigint(20) unsigned NOT NULL,
+  eligible_json longtext NOT NULL,
+  total_weight decimal(20,6) NOT NULL DEFAULT 0,
+  cut decimal(20,10) NOT NULL DEFAULT 0,
+  outcome_index int(11) NOT NULL DEFAULT 0,
+  outcome_segment varchar(64) NOT NULL DEFAULT '',
+  created_at datetime NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY spin_uid (spin_uid),
+  KEY user_product (user_id, product_id),
+  KEY created_at (created_at)
 ) {$charset_collate};
 ";
 

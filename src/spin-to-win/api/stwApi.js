@@ -58,3 +58,22 @@ export async function postAckSpin(cfg) {
 
   return data;
 }
+
+export async function postTurboSpin(cfg) {
+  const url = buildRestUrl(cfg, `product/${cfg.productId}/spin/turbo`);
+  const response = await fetch(url, {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: {
+      ...restHeaders(cfg),
+      'Content-Type': 'application/json',
+    },
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.message || data.code || `HTTP ${response.status}`);
+  }
+
+  return data;
+}
