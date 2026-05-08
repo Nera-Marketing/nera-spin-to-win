@@ -350,22 +350,11 @@ export default function SpinToWinApp({ cfg }) {
             strings.tryAgain || 'Close, but not this time.',
             strings.tryAgainBody || "The fun's not over... Give it another spin!",
           );
-        } else if (result.prize_type === 'woo_wallet') {
-          const amount =
-            result.details && result.details.amount != null
-              ? result.details.amount
-              : '';
+        } else {
+          // Match the wheel slice / history / Turbo results — show the operator's label.
           openModal(
             strings.youWon || 'You won!',
-            (strings.wonWallet || 'Site credit added: {amount}').replace(
-              '{amount}',
-              String(amount),
-            ),
-          );
-        } else if (result.prize_type === 'physical') {
-          openModal(
-            strings.youWon || 'You won!',
-            strings.wonPhysical || 'We will contact you about your physical prize.',
+            result.prize_label || '',
           );
         }
       }

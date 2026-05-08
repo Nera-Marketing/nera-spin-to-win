@@ -527,7 +527,15 @@ class Nera_STW_Admin_Product {
 			$segments[] = $seg;
 		}
 
-		update_post_meta( $post_id, Nera_STW_Product_Meta::META_SEGMENTS, wp_json_encode( $segments ) );
+		// wp_slash() compensates for the wp_unslash() that update_metadata() runs
+		// internally — without it, JSON-escaped unicode like £ (£) loses its
+		// backslash and is persisted as the literal text `u00a3`. JSON_UNESCAPED_UNICODE
+		// keeps printable non-ASCII chars as themselves, sidestepping the escape entirely.
+		update_post_meta(
+			$post_id,
+			Nera_STW_Product_Meta::META_SEGMENTS,
+			wp_slash( wp_json_encode( $segments, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) )
+		);
 
 		Nera_STW_Segment_Stock::sync_initial_from_segments( $post_id, Nera_STW_Product_Meta::get_segments( $post_id ) );
 	}
