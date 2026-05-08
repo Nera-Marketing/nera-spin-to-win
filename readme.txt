@@ -23,6 +23,15 @@ Spin wheel for lottery competitions — spins from ticket purchases, site credit
 
 == Changelog ==
 
+= 1.2.0 =
+* New: per-segment **Enabled** toggle in the Spin To Win admin tab — disable a prize without deleting it. Disabled segments are excluded from the draw exactly like out-of-stock physicals.
+* New: **Turbo Spin** now opens a confirmation dialog ("Are you sure you want to use turbo spin, it will reveal all prizes instantly") before consuming spins. On confirm, every remaining spin (capped at 50 per click) resolves at once with no wheel animation, and a results list shows every outcome.
+* New: **Auditable RNG** — every spin now uses HMAC-SHA256 with a server seed, client seed, and nonce; outcomes are logged to a new `wp_nera_stw_spin_audit` table for dispute resolution and future provably-fair UI.
+* Change: the post-spin "You won!" modal now shows the segment's label (e.g. "Cash 20") instead of generic type-derived copy, matching the wheel slice and history sidebar.
+* Fix: non-ASCII characters in segment labels (£, €, accented characters, emoji) round-trip cleanly through save — previously mangled by the `update_post_meta` + `wp_unslash` interaction.
+* Polish: modal spacing improvements; turbo-results dialog enlarged for readability.
+* Docs: new client-facing PDFs `docs/weight-explained.pdf` and `docs/spin-to-win-flow.pdf`.
+
 = 1.1.7 =
 * GitHub updates: align Plugin Update Checker with `nera-instant-win-threshold` — `main` branch, release list + semver tag order, and download the published `nera-spin-to-win-*.zip` release asset (fixes sites stuck when GitHub “latest” release is not the highest version).
 
