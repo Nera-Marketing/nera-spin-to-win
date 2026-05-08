@@ -104,7 +104,7 @@ get_header();
     <?php else : ?>
       <div
         id="nera-spin-root"
-        class="nera-spin-to-win relative overflow-hidden rounded-[1.75rem] border border-amber-400/20 bg-gradient-to-br from-white via-secondary/80 to-amber-50/30 p-5 shadow-[0_32px_90px_-28px_rgba(192,23,46,0.18)] ring-1 ring-black/[0.05] sm:p-7 lg:p-8 xl:h-[60dvh] xl:overflow-y-hidden"
+        class="nera-spin-to-win relative rounded-[1.75rem] border border-amber-400/20 bg-gradient-to-br from-white via-secondary/80 to-amber-50/30 p-5 shadow-[0_32px_90px_-28px_rgba(192,23,46,0.18)] ring-1 ring-black/[0.05] sm:p-7 lg:p-8"
       >
         <div
           class="pointer-events-none absolute -right-16 top-0 h-56 w-56 rounded-full bg-[#c0172e]/[0.06] blur-3xl"

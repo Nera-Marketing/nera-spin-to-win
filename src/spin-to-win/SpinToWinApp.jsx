@@ -358,9 +358,9 @@ export default function SpinToWinApp({ cfg }) {
         <div className="relative z-[1] grid h-full min-h-0 grid-cols-1 items-stretch gap-8 lg:gap-10 xl:grid-cols-12">
         <PrizeList items={allWheelItems} title={strings.prizesTitle || 'All prizes'} />
 
-        <div className="xl:col-span-6 order-1 xl:order-2 flex flex-col items-center md:justify-center pt-6">
+        <div className="stw-wheel-col xl:col-span-6 order-1 xl:order-2 flex flex-col items-center md:justify-center pt-6">
           <div
-            className="relative w-full max-w-[min(100%,546px)] aspect-square mx-auto mb-6 rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(192,23,46,0.22)_0%,transparent_70%)] p-[2px] shadow-[0_0_0_4px_rgba(251,191,36,0.25),0_0_60px_-10px_rgba(192,23,46,0.6),0_32px_80px_-20px_rgba(60,0,10,0.5)]"
+            className="stw-wheel-shell relative w-full max-w-[min(100%,546px)] aspect-square mx-auto mb-6 rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(192,23,46,0.22)_0%,transparent_70%)] p-[2px] shadow-[0_0_0_4px_rgba(251,191,36,0.25),0_0_60px_-10px_rgba(192,23,46,0.6),0_32px_80px_-20px_rgba(60,0,10,0.5)]"
           >
             <div className="relative h-full w-full overflow-hidden rounded-full bg-[#7b0d1e]">
               <WheelCanvas
