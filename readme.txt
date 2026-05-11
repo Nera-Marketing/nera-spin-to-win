@@ -4,7 +4,7 @@ Tags: woocommerce, lottery, spin wheel, competition
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 
 Spin wheel for lottery competitions — spins from ticket purchases, site credit and physical prizes.
@@ -22,6 +22,12 @@ Spin wheel for lottery competitions — spins from ticket purchases, site credit
 3. Configure wheel segments and options per product as needed.
 
 == Changelog ==
+
+= 1.2.1 =
+* New: public REST endpoint `GET /nera-stw/v1/product/{id}/prizes` returns physical and site-credit prize segments with availability counts, recent winners (privacy-masked), totals, a 60-second server-side cache, and per-IP rate limiting (30 req/min) — powers the new prize banner on single-product pages.
+* New: site-credit (wallet) segments support an optional stock cap in the product admin; leaving the field empty means unlimited, setting it to 0 marks the prize sold out.
+* Fix: spin eligibility and stock decrement/rollback logic now apply to capped site-credit prizes the same way they apply to physical prizes.
+* Fix: prize banner cache is automatically cleared when product segment settings are saved.
 
 = 1.2.0 =
 * New: per-segment **Enabled** toggle in the Spin To Win admin tab — disable a prize without deleting it. Disabled segments are excluded from the draw exactly like out-of-stock physicals.
