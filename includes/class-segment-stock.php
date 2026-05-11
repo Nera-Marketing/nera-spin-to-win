@@ -20,12 +20,22 @@ class Nera_STW_Segment_Stock {
 	 */
 	public static function sync_initial_from_segments( $product_id, $segments ) {
 		foreach ( $segments as $seg ) {
-			if ( 'physical' !== $seg['type'] ) {
+			$type = isset( $seg['type'] ) ? $seg['type'] : '';
+			$cap  = isset( $seg['stock'] ) ? (int) $seg['stock'] : 0;
+
+			if ( 'physical' === $type ) {
+				// Physical segments always get a stock row (cap may be 0).
+				self::ensure_row( $product_id, $seg['id'], $cap );
 				continue;
 			}
-			$sid = $seg['id'];
-			$cap = isset( $seg['stock'] ) ? (int) $seg['stock'] : 0;
-			self::ensure_row( $product_id, $sid, $cap );
+
+			if ( 'woo_wallet' === $type && isset( $seg['stock'] ) ) {
+				// Capped wallet segments (including stock = 0 / "sold out") share the same stock-table contract as physical.
+				self::ensure_row( $product_id, $seg['id'], $cap );
+				continue;
+			}
+
+			// Other types (and uncapped wallet) skip the stock table.
 		}
 	}
 

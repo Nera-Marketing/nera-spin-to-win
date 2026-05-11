@@ -123,6 +123,7 @@ class Nera_STW_Admin_Product {
 					'<td><input type="number" step="0.01" min="0" class="small-text nera-stw-wallet" placeholder="0" /></td>' +
 					'<td><input type="text" class="widefat nera-stw-physical-title" placeholder="—" /></td>' +
 					'<td><input type="number" min="0" class="small-text nera-stw-stock" placeholder="0" /></td>' +
+					'<td><input type="text" class="nera-stw-remaining-input" value="" disabled readonly /></td>' +
 					'<td>' +
 						'<div class="nera-stw-image-preview hidden" style="margin-bottom:6px;">' +
 							'<img class="nera-stw-image-thumb" src="" alt="' + escHtml('<?php echo esc_js( __( 'Prize image preview', 'nera-spin-to-win' ) ); ?>') + '" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid #dcdcde;" />' +
@@ -156,6 +157,10 @@ class Nera_STW_Admin_Product {
 					if (imageUrl)     { seg.image_url = imageUrl; }
 					if (type === 'woo_wallet') {
 						seg.wallet_amount = parseFloat($r.find('.nera-stw-wallet').val()) || 0;
+						var walletStockVal = $r.find('.nera-stw-stock').val();
+						if (walletStockVal !== '' && walletStockVal != null) {
+							seg.stock = Math.max(0, parseInt(walletStockVal, 10) || 0);
+						}
 					}
 					if (type === 'physical') {
 						seg.physical_title = $r.find('.nera-stw-physical-title').val() || '';
@@ -201,7 +206,7 @@ class Nera_STW_Admin_Product {
 					$('.nera-stw-empty').remove();
 
 					if (parsed.length === 0) {
-						$('#nera-stw-rows').append('<tr class="nera-stw-empty"><td colspan="9">' +
+						$('#nera-stw-rows').append('<tr class="nera-stw-empty"><td colspan="10">' +
 							escHtml('<?php echo esc_js( __( 'No segments yet. Add a row.', 'nera-spin-to-win' ) ); ?>') +
 							'</td></tr>');
 						return;
@@ -230,6 +235,9 @@ class Nera_STW_Admin_Product {
 						if (type === 'woo_wallet') {
 							$row.find('.nera-stw-wallet').val(
 								(typeof seg.wallet_amount === 'number') ? seg.wallet_amount : ''
+							);
+							$row.find('.nera-stw-stock').val(
+								(typeof seg.stock === 'number') ? seg.stock : ''
 							);
 						}
 						if (type === 'physical') {
@@ -323,6 +331,10 @@ class Nera_STW_Admin_Product {
 					}
 					if (type === 'woo_wallet') {
 						seg.wallet_amount = parseFloat($r.find('.nera-stw-wallet').val()) || 0;
+						var walletStockVal = $r.find('.nera-stw-stock').val();
+						if (walletStockVal !== '' && walletStockVal != null) {
+							seg.stock = Math.max(0, parseInt(walletStockVal, 10) || 0);
+						}
 					}
 					if (type === 'physical') {
 						seg.physical_title = $r.find('.nera-stw-physical-title').val() || '';
@@ -357,6 +369,14 @@ class Nera_STW_Admin_Product {
 		}
 		?>
 		<div id="nera_spin_to_win_data" class="panel woocommerce_options_panel hidden">
+			<style>
+				#nera_spin_to_win_data .nera-stw-row td > input[type="text"],
+				#nera_spin_to_win_data .nera-stw-row td > input[type="number"],
+				#nera_spin_to_win_data .nera-stw-row td > select {
+					width: 100%;
+					box-sizing: border-box;
+				}
+			</style>
 			<div class="options_group">
 				<p class="form-field">
 					<label for="_nera_stw_enabled"><?php esc_html_e( 'Enable Spin To Win', 'nera-spin-to-win' ); ?></label>
@@ -365,7 +385,7 @@ class Nera_STW_Admin_Product {
 				</p>
 				<p class="form-field">
 					<label><?php esc_html_e( 'Wheel segments', 'nera-spin-to-win' ); ?></label>
-					<span class="description"><?php esc_html_e( 'Weights control relative probability. Physical prizes use stock; site credit is unlimited.', 'nera-spin-to-win' ); ?></span>
+					<span class="description"><?php esc_html_e( 'Weights control relative probability. Physical prizes use stock; site credit may use stock if configured.', 'nera-spin-to-win' ); ?></span>
 				</p>
 				<table class="widefat" style="max-width: 1200px;">
 					<thead>
@@ -377,6 +397,7 @@ class Nera_STW_Admin_Product {
 							<th><?php esc_html_e( 'Credit amount', 'nera-spin-to-win' ); ?></th>
 							<th><?php esc_html_e( 'Physical title', 'nera-spin-to-win' ); ?></th>
 							<th><?php esc_html_e( 'Stock', 'nera-spin-to-win' ); ?></th>
+							<th><?php esc_html_e( 'Remaining', 'nera-spin-to-win' ); ?></th>
 							<th><?php esc_html_e( 'Image', 'nera-spin-to-win' ); ?></th>
 							<th></th>
 						</tr>
@@ -384,7 +405,7 @@ class Nera_STW_Admin_Product {
 					<tbody id="nera-stw-rows">
 						<?php
 						if ( empty( $rows ) ) {
-							echo '<tr class="nera-stw-empty"><td colspan="9">' . esc_html__( 'No segments yet. Add a row.', 'nera-spin-to-win' ) . '</td></tr>';
+							echo '<tr class="nera-stw-empty"><td colspan="10">' . esc_html__( 'No segments yet. Add a row.', 'nera-spin-to-win' ) . '</td></tr>';
 						} else {
 							foreach ( $rows as $r ) {
 								$id        = isset( $r['id'] ) ? esc_attr( $r['id'] ) : 'seg_' . wp_generate_password( 8, false );
@@ -394,7 +415,11 @@ class Nera_STW_Admin_Product {
 								$w         = isset( $r['weight'] ) ? esc_attr( (string) $r['weight'] ) : '1';
 								$wa        = isset( $r['wallet_amount'] ) ? esc_attr( (string) $r['wallet_amount'] ) : '';
 								$pt        = isset( $r['physical_title'] ) ? esc_attr( $r['physical_title'] ) : '';
-								$st        = isset( $r['stock'] ) ? esc_attr( (string) $r['stock'] ) : '0';
+								$st        = isset( $r['stock'] ) ? esc_attr( (string) $r['stock'] ) : '';
+								$has_tracked_stock = ( 'physical' === $type ) || ( 'woo_wallet' === $type && '' !== $st );
+								$remaining = $has_tracked_stock
+									? Nera_STW_Segment_Stock::get_remaining( $post->ID, isset( $r['id'] ) ? (string) $r['id'] : '' )
+									: null;
 								$image_id  = isset( $r['image_id'] ) ? absint( $r['image_id'] ) : 0;
 								$image_url = '';
 								if ( $image_id > 0 ) {
@@ -418,6 +443,16 @@ class Nera_STW_Admin_Product {
 									<td><input type="number" step="0.01" min="0" class="small-text nera-stw-wallet" value="<?php echo esc_attr( $wa ); ?>" /></td>
 									<td><input type="text" class="widefat nera-stw-physical-title" value="<?php echo esc_attr( $pt ); ?>" /></td>
 									<td><input type="number" min="0" class="small-text nera-stw-stock" value="<?php echo esc_attr( $st ); ?>" /></td>
+									<td>
+										<input
+											type="text"
+											class="nera-stw-remaining-input"
+											value="<?php echo null !== $remaining ? esc_attr( (int) $remaining . ' / ' . (int) ( '' === $st ? 0 : $st ) ) : ''; ?>"
+											disabled
+											readonly
+											aria-label="<?php esc_attr_e( 'Remaining slots (read-only)', 'nera-spin-to-win' ); ?>"
+										/>
+									</td>
 									<td>
 										<div class="nera-stw-image-preview<?php echo $image_url ? '' : ' hidden'; ?>" style="margin-bottom:6px;">
 											<img
@@ -518,6 +553,10 @@ class Nera_STW_Admin_Product {
 				$seg['wallet_amount'] = isset( $row['wallet_amount'] ) ? (float) $row['wallet_amount'] : 0;
 				if ( $seg['wallet_amount'] < 0 ) {
 					$seg['wallet_amount'] = 0;
+				}
+				// Optional stock cap. Empty input ⇒ omit (unlimited). Explicit 0 ⇒ cap of 0 (sold out).
+				if ( isset( $row['stock'] ) && '' !== $row['stock'] ) {
+					$seg['stock'] = max( 0, (int) $row['stock'] );
 				}
 			}
 			if ( 'physical' === $type ) {

@@ -96,6 +96,10 @@ class Nera_STW_Product_Meta {
 				if ( $seg['wallet_amount'] < 0 ) {
 					$seg['wallet_amount'] = 0;
 				}
+				// Optional stock cap for wallet segments. Missing/empty ⇒ unlimited. Explicit 0 ⇒ cap of 0 (sold out).
+				if ( isset( $row['stock'] ) && '' !== $row['stock'] ) {
+					$seg['stock'] = max( 0, (int) $row['stock'] );
+				}
 			}
 			if ( 'physical' === $type ) {
 				$seg['physical_title'] = isset( $row['physical_title'] ) ? sanitize_text_field( (string) $row['physical_title'] ) : $seg['label'];

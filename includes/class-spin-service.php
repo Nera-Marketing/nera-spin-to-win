@@ -56,8 +56,8 @@ class Nera_STW_Spin_Service {
 		$win_index = $pick['index'];
 		$seg       = $segments[ $win_index ];
 
-		// Physical: claim stock.
-		if ( 'physical' === $seg['type'] ) {
+		// Claim stock for capped segments (physical, or wallet with a stock cap).
+		if ( self::segment_consumes_stock( $seg ) ) {
 			if ( ! Nera_STW_Segment_Stock::try_decrement( $product_id, $seg['id'] ) ) {
 				$fallback = self::find_fallback_no_win_index( $segments, $eligible );
 				if ( null !== $fallback ) {
@@ -70,7 +70,7 @@ class Nera_STW_Spin_Service {
 		$fulfill = self::fulfill( $user_id, $product_id, $seg );
 		if ( is_wp_error( $fulfill ) ) {
 			Nera_STW_Balances::rollback_used_one( $user_id, $product_id );
-			if ( 'physical' === $seg['type'] ) {
+			if ( self::segment_consumes_stock( $seg ) ) {
 				Nera_STW_Segment_Stock::increment( $product_id, $seg['id'] );
 			}
 			return $fulfill;
@@ -180,7 +180,10 @@ class Nera_STW_Spin_Service {
 			if ( empty( $seg['enabled'] ) ) {
 				continue;
 			}
-			if ( 'physical' === $seg['type'] ) {
+			// Physical segments are always cap-gated. Wallet segments are gated only
+			// when an explicit positive `stock` cap is configured; uncapped wallet
+			// segments remain unlimited.
+			if ( self::segment_consumes_stock( $seg ) ) {
 				$r = Nera_STW_Segment_Stock::get_remaining( $product_id, $seg['id'] );
 				if ( $r < 1 ) {
 					continue;
@@ -189,6 +192,30 @@ class Nera_STW_Spin_Service {
 			$eligible[] = (int) $i;
 		}
 		return $eligible;
+	}
+
+	/**
+	 * Whether a segment participates in the segment-stock cap & decrement flow.
+	 *
+	 * Physical segments are always capped. Wallet segments are capped only when
+	 * `stock` is configured as a positive integer; otherwise they are unlimited
+	 * and never consume stock.
+	 *
+	 * @param array<string, mixed> $seg Segment.
+	 * @return bool
+	 */
+	private static function segment_consumes_stock( $seg ) {
+		if ( ! is_array( $seg ) || empty( $seg['type'] ) ) {
+			return false;
+		}
+		if ( 'physical' === $seg['type'] ) {
+			return true;
+		}
+		if ( 'woo_wallet' === $seg['type'] ) {
+			// Capped wallet segments (incl. stock = 0 / sold out) consume stock; uncapped wallet does not.
+			return isset( $seg['stock'] );
+		}
+		return false;
 	}
 
 	/**
