@@ -1,12 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { fetchState, postAckSpin, postSpin, postTurboSpin } from './api/stwApi.js';
 import { formatHistoryRow } from './utils/history.js';
+import { readThemeColors } from './utils/themeColors.js';
+import { cx } from './utils/cx.js';
 import HistoryList from './components/HistoryList.jsx';
 import PrizeList from './components/PrizeList.jsx';
 import SpinControls from './components/SpinControls.jsx';
 import SpinModal from './components/SpinModal.jsx';
 import WheelCanvas from './components/WheelCanvas.jsx';
 import WheelChrome from './components/WheelChrome.jsx';
+import styles from './SpinToWinApp.module.css';
 
 const SLICE_SIZE = 10;
 
@@ -124,6 +127,8 @@ export default function SpinToWinApp({ cfg }) {
     };
   }, [cfg]);
 
+  const palette = useMemo(() => readThemeColors(), []);
+
   const wheelItems = useMemo(() => {
     if (!state?.wheel_items || !displayIndices) {
       return [];
@@ -132,11 +137,13 @@ export default function SpinToWinApp({ cfg }) {
       const item = state.wheel_items[origIdx];
       return {
         label: item.label,
-        backgroundColor: pos % 2 === 0 ? '#c0172e' : '#e8950a',
+        // Wheel slices use the fixed-default --stw-wheel-* tokens (red/gold),
+        // independent of brand; overridable per site for special cases.
+        backgroundColor: pos % 2 === 0 ? palette.wheelA : palette.wheelB,
         labelColor: '#ffffff',
       };
     });
-  }, [state?.wheel_items, displayIndices]);
+  }, [state?.wheel_items, displayIndices, palette]);
 
   const allWheelItems = useMemo(() => {
     if (!state?.wheel_items) {
@@ -152,10 +159,10 @@ export default function SpinToWinApp({ cfg }) {
       .map((item, index) => ({
         label: item.label,
         imageUrl: item.image_url || item.image || '',
-        backgroundColor: index % 2 === 0 ? '#c0172e' : '#e8950a',
+        backgroundColor: index % 2 === 0 ? palette.brand : palette.accent,
         labelColor: '#ffffff',
       }));
-  }, [state?.wheel_items]);
+  }, [state?.wheel_items, palette]);
 
   const historyRows = useMemo(() => {
     if (!state || !Array.isArray(state.history)) {
@@ -266,7 +273,7 @@ export default function SpinToWinApp({ cfg }) {
           label: r.prize_label || '',
           kind,
           amount,
-          backgroundColor: r.prize_type === 'no_win' ? '#94a3b8' : '#c0172e',
+          backgroundColor: r.prize_type === 'no_win' ? '#94a3b8' : palette.brand,
         };
       });
 
@@ -306,7 +313,7 @@ export default function SpinToWinApp({ cfg }) {
     } finally {
       setTurboRunning(false);
     }
-  }, [cfg, openModal, spinning, state, strings, turboRunning]);
+  }, [cfg, openModal, spinning, state, strings, turboRunning, palette]);
 
   const onSpinEnd = useCallback(
     async (requestId) => {
@@ -382,19 +389,16 @@ export default function SpinToWinApp({ cfg }) {
 
   if (loading) {
     return (
-      <div className="relative z-[1] flex min-h-[12rem] flex-col items-center justify-center gap-4 py-16">
-        <span
-          className="inline-block h-10 w-10 animate-spin rounded-full border-[3px] border-[#c0172e]/20 border-t-[#c0172e]"
-          aria-hidden
-        />
-        <p className="text-sm font-medium text-text-secondary">Loading wheel…</p>
+      <div className={styles.loading}>
+        <span className={styles.spinner} aria-hidden />
+        <p className={styles.loadingText}>Loading wheel…</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <p className="relative z-[1] flex min-h-full items-center justify-center px-4 py-12 text-center text-sm font-medium text-danger">
+      <p className={styles.error}>
         {error}
       </p>
     );
@@ -402,7 +406,7 @@ export default function SpinToWinApp({ cfg }) {
 
   if (!state?.feature_enabled) {
     return (
-      <p className="relative z-[1] flex min-h-full items-center justify-center px-4 py-12 text-center text-sm text-text-secondary">
+      <p className={styles.disabled}>
         {strings.disabled || 'Spin To Win is temporarily unavailable.'}
       </p>
     );
@@ -410,75 +414,77 @@ export default function SpinToWinApp({ cfg }) {
 
   return (
     <>
-      <div className="relative z-[1] h-full min-h-0 rounded-2xl border border-white/60 bg-gradient-to-br from-white/90 via-secondary/40 to-amber-50/20 px-0 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] sm:p-5 lg:p-6">
-        <div
-          className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl"
-          aria-hidden
-        >
-          <div className="absolute -right-20 top-1/4 h-72 w-72 rounded-full bg-[#c0172e]/[0.05] blur-3xl" />
-          <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-amber-300/10 blur-3xl" />
+      <div className={styles.card}>
+        <div className={styles.blobs} aria-hidden>
+          <div className={styles.blobRed} />
+          <div className={styles.blobAmber} />
         </div>
-        <div className="relative z-[1] grid h-full min-h-0 grid-cols-1 items-stretch gap-8 lg:gap-10 xl:grid-cols-12">
-        <PrizeList items={allWheelItems} title={strings.prizesTitle || 'All prizes'} />
+        <div className={styles.grid}>
+          <PrizeList items={allWheelItems} title={strings.prizesTitle || 'All prizes'} />
 
-        <div className="stw-wheel-col xl:col-span-6 order-1 xl:order-2 flex flex-col items-center md:justify-center pt-6">
-          <div
-            className="stw-wheel-shell relative w-full max-w-[min(100%,546px)] aspect-square mx-auto mb-6 rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(192,23,46,0.22)_0%,transparent_70%)] p-[2px] shadow-[0_0_0_4px_rgba(251,191,36,0.25),0_0_60px_-10px_rgba(192,23,46,0.6),0_32px_80px_-20px_rgba(60,0,10,0.5)]"
-          >
-            <div className="relative h-full w-full overflow-hidden rounded-full bg-[#7b0d1e]">
-              <WheelCanvas
-                items={wheelItems}
-                spinRequest={spinRequest}
-                onSpinEnd={onSpinEnd}
+          <div className={cx(styles.wheelCol, 'stw-wheel-col')}>
+            <div
+              className={cx(styles.wheelShell, 'stw-wheel-shell')}
+            >
+              <div className={styles.wheelInner}>
+                <WheelCanvas
+                  items={wheelItems}
+                  spinRequest={spinRequest}
+                  onSpinEnd={onSpinEnd}
+                />
+                <WheelChrome
+                segmentCount={wheelItems.length || 10}
+                rim={palette.wheelRim}
+                bulb={palette.wheelBulb}
+                pointer={palette.wheelPointer}
               />
-              <WheelChrome segmentCount={wheelItems.length || 10} />
+              </div>
             </div>
+
+            <SpinControls
+              strings={strings}
+              turbo={turbo}
+              spinning={spinning || turboRunning}
+              onViewPrizes={() => {
+                setModal({
+                  open: true,
+                  title: strings.prizesTitle || 'All prizes',
+                  body: '',
+                  variant: 'prizes',
+                });
+              }}
+              onTurboSpin={() => {
+                if ((state?.remaining_spins ?? 0) < 1) {
+                  openModal(
+                    strings.noSpins || 'No spins left',
+                    strings.noSpinsBody || 'Purchase more tickets to earn spins.',
+                    'noSpins',
+                  );
+                  return;
+                }
+                openModal(
+                  strings.turboConfirmTitle || 'Turbo Spin',
+                  strings.turboConfirmBody ||
+                    'Are you sure you want to use turbo spin, it will reveal all prizes instantly',
+                  'turbo-confirm',
+                );
+              }}
+              onFullSpin={() => {
+                triggerSpin(false);
+              }}
+            />
           </div>
 
-          <SpinControls
-            strings={strings}
-            turbo={turbo}
-            spinning={spinning || turboRunning}
-            onViewPrizes={() => {
-              setModal({
-                open: true,
-                title: strings.prizesTitle || 'All prizes',
-                body: '',
-                variant: 'prizes',
-              });
-            }}
-            onTurboSpin={() => {
-              if ((state?.remaining_spins ?? 0) < 1) {
-                openModal(
-                  strings.noSpins || 'No spins left',
-                  strings.noSpinsBody || 'Purchase more tickets to earn spins.',
-                  'noSpins',
-                );
-                return;
-              }
-              openModal(
-                strings.turboConfirmTitle || 'Turbo Spin',
-                strings.turboConfirmBody ||
-                  'Are you sure you want to use turbo spin, it will reveal all prizes instantly',
-                'turbo-confirm',
-              );
-            }}
-            onFullSpin={() => {
-              triggerSpin(false);
-            }}
+          <HistoryList
+            rows={historyRows}
+            title={strings.historyTitle || 'History'}
+            emptyMessage={
+              strings.emptyHistory ||
+              'No spin history yet. Start spinning to discover your next prize!'
+            }
+            remainingSpins={state.remaining_spins ?? 0}
+            spinsLeftLabel={strings.spinsLeft || 'spins left'}
           />
-        </div>
-
-        <HistoryList
-          rows={historyRows}
-          title={strings.historyTitle || 'History'}
-          emptyMessage={
-            strings.emptyHistory ||
-            'No spin history yet. Start spinning to discover your next prize!'
-          }
-          remainingSpins={state.remaining_spins ?? 0}
-          spinsLeftLabel={strings.spinsLeft || 'spins left'}
-        />
         </div>
       </div>
 

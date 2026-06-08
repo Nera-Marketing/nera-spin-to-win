@@ -1,0 +1,191 @@
+/* Loading state */
+.loading {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 12rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+.spinner {
+  display: inline-block;
+  height: 2.5rem;
+  width: 2.5rem;
+  animation: spin 1s linear infinite;
+  border-radius: 9999px;
+  border: 3px solid color-mix(in srgb, var(--stw-brand) 20%, transparent);
+  border-top-color: var(--stw-brand);
+}
+
+.loadingText {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--stw-text-muted);
+}
+
+/* Error state */
+.error {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--stw-danger);
+}
+
+/* Disabled state */
+.disabled {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--stw-text-muted);
+}
+
+/* Main card */
+.card {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  min-height: 0;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0.9),
+    color-mix(in srgb, var(--stw-accent) 12%, transparent),
+    color-mix(in srgb, var(--stw-accent) 8%, transparent)
+  );
+  padding: 0 0 1rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+@media (min-width: 640px) {
+  .card {
+    padding: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card {
+    padding: 1.5rem;
+  }
+}
+
+/* Decorative blobs */
+.blobs {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 1rem;
+}
+
+.blobRed {
+  position: absolute;
+  right: -5rem;
+  top: 25%;
+  height: 18rem;
+  width: 18rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--stw-brand) 5%, transparent);
+  filter: blur(48px);
+}
+
+.blobAmber {
+  position: absolute;
+  bottom: -4rem;
+  left: -4rem;
+  height: 16rem;
+  width: 16rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--stw-accent) 10%, transparent);
+  filter: blur(48px);
+}
+
+/* Inner grid */
+.grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  height: 100%;
+  min-height: 0;
+  grid-template-columns: 1fr;
+  align-items: stretch;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    gap: 2.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+}
+
+/* Wheel column (literal stw-wheel-col alongside) */
+.wheelCol {
+  order: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .wheelCol {
+    justify-content: center;
+  }
+}
+
+@media (min-width: 1280px) {
+  .wheelCol {
+    order: 2;
+    grid-column: span 6 / span 6;
+  }
+}
+
+/* Wheel shell (literal stw-wheel-shell alongside) */
+.wheelShell {
+  position: relative;
+  width: 100%;
+  max-width: min(100%, 546px);
+  aspect-ratio: 1 / 1;
+  margin: 0 auto 1.5rem;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--stw-wheel-segment-a) 22%, transparent) 0%, transparent 70%);
+  padding: 2px;
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--stw-wheel-bulb) 25%, transparent),
+    0 0 60px -10px color-mix(in srgb, var(--stw-wheel-segment-a) 60%, transparent),
+    0 32px 80px -20px color-mix(in srgb, var(--stw-wheel-base) 55%, transparent);
+}
+
+/* Wheel inner */
+.wheelInner {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: var(--stw-wheel-base);
+}
