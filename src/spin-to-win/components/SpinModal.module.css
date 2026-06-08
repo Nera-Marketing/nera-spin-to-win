@@ -1,0 +1,364 @@
+/* Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background: rgba(13, 13, 27, 0.65);
+  padding: 1rem;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transition: opacity 240ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay {
+    transition: none;
+  }
+}
+
+.overlayVisible {
+  opacity: 1;
+}
+
+.overlayHidden {
+  opacity: 0;
+}
+
+.overlayExiting {
+  pointer-events: none;
+}
+
+/* Panel */
+.panel {
+  position: relative;
+  width: 100%;
+  max-width: 28rem;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  border: 2px solid color-mix(in srgb, var(--stw-accent) 25%, transparent);
+  background: var(--stw-surface);
+  text-align: center;
+  box-shadow: 0 40px 100px -30px color-mix(in srgb, var(--stw-brand) 35%, transparent);
+  transition: opacity 240ms ease-out, transform 240ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    transition: none;
+    transform: none !important;
+  }
+}
+
+.panelVisible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.panelHidden {
+  opacity: 0;
+  transform: scale(0.98) translateY(0.25rem);
+}
+
+.panelPrizes {
+  max-width: 42rem;
+  text-align: left;
+}
+
+.panelTurboResults {
+  max-width: 42rem;
+  text-align: center;
+}
+
+/* Top gradient stripe */
+.stripe {
+  height: 0.375rem;
+  width: 100%;
+  background: linear-gradient(to right, var(--stw-brand), var(--stw-accent), var(--stw-brand));
+}
+
+/* Body */
+.body {
+  position: relative;
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+/* Close button */
+.closeBtn {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  z-index: 1;
+  cursor: help;
+  border-radius: 0.75rem;
+  padding: 0.375rem;
+  color: var(--stw-text-muted);
+  transition: color 0.15s, background-color 0.15s;
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.closeBtn:hover {
+  background: var(--stw-accent-soft);
+  color: var(--stw-text);
+}
+
+/* Heading */
+.heading {
+  margin-bottom: 1rem;
+  font-family: var(--font-heading, sans-serif);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--stw-text);
+}
+
+.headingLg {
+  font-size: 1.875rem;
+}
+
+/* Body text */
+.bodyText {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.625;
+  color: var(--stw-text-muted);
+}
+
+/* ---- prizes variant ---- */
+
+.prizeGrid {
+  margin-top: 1.5rem;
+  display: grid;
+  max-height: min(60vh, 520px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  list-style: none;
+  padding-left: 0;
+}
+
+.prizeCard {
+  display: flex;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid rgba(243, 244, 246, 0.9);
+  background: var(--stw-surface);
+  box-shadow:
+    0 8px 24px -12px rgba(15, 23, 42, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.prizeCard:hover {
+  transform: translateY(-0.125rem);
+  box-shadow:
+    0 14px 36px -14px color-mix(in srgb, var(--stw-brand) 15%, transparent),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.prizeStripe {
+  width: 0.5rem;
+  flex-shrink: 0;
+  align-self: stretch;
+  min-height: 4.5rem;
+}
+
+.prizeImageWrap {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  min-height: 4.5rem;
+  flex: 1 1 0%;
+  overflow: hidden;
+  border-radius: 0 1rem 1rem 0;
+  background: var(--stw-accent-soft);
+}
+
+.prizeImg {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  transition: transform 500ms;
+}
+
+.prizeCard:hover .prizeImg {
+  transform: scale(1.03);
+}
+
+.prizeGradient {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.3), transparent, transparent);
+  opacity: 0.8;
+}
+
+.prizeLabel {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  max-width: calc(100% - 1rem);
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0.25rem 0.5rem;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--stw-text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+@media (min-width: 640px) {
+  .prizeLabel {
+    bottom: 0.75rem;
+    left: 0.75rem;
+    max-width: calc(100% - 1.5rem);
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+  }
+}
+
+.prizeNoImage {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--stw-text-muted);
+}
+
+/* ---- shared action row ---- */
+
+.actionRow {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+/* Primary button (brand) */
+.btnPrimary {
+  display: inline-flex;
+  min-height: 44px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  background: linear-gradient(to bottom, var(--stw-brand-light), var(--stw-brand-dark));
+  padding: 0 2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #ffffff;
+  text-decoration: none;
+  border: none;
+  box-shadow:
+    0 4px 0 0 var(--stw-brand-deep),
+    0 12px 32px -8px color-mix(in srgb, var(--stw-brand) 50%, transparent);
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.btnPrimary:hover {
+  opacity: 0.95;
+}
+
+.btnPrimary:active {
+  transform: translateY(0.125rem);
+}
+
+/* Secondary button (accent) */
+.btnSecondary {
+  display: inline-flex;
+  min-height: 44px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--stw-accent) 10%, #fff),
+    color-mix(in srgb, var(--stw-accent) 20%, #fff)
+  );
+  padding: 0 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--stw-brand);
+  border: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 4px 0 0 var(--stw-accent-dark),
+    0 12px 28px -8px color-mix(in srgb, var(--stw-accent-dark) 35%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--stw-accent) 25%, transparent);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btnSecondary:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 3px 0 0 var(--stw-accent-dark),
+    0 0 0 1px color-mix(in srgb, var(--stw-accent) 25%, transparent);
+}
+
+.btnSecondary:active {
+  transform: translateY(0.125rem);
+}
+
+/* ---- turbo-results variant ---- */
+
+.turboList {
+  margin-top: 1.5rem;
+  max-height: min(70vh, 560px);
+  overflow-y: auto;
+  text-align: left;
+  list-style: none;
+  padding: 0;
+}
+
+.turboItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1rem 1rem 0;
+}
+
+.turboItem + .turboItem {
+  border-top: 1px solid #f3f4f6;
+}
+
+.turboDot {
+  height: 0.875rem;
+  width: 0.875rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+}
+
+.turboLabel {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--stw-text);
+}
+
+.turboAmount {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--stw-success);
+}
+
+.turboNoWin {
+  font-size: 0.875rem;
+  color: var(--stw-text-muted);
+}

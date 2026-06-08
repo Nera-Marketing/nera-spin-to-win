@@ -4,6 +4,14 @@
    virtual /spin-to-win/product/{id}/ route.
    ========================================================================== */
 
+/* Reserve the scrollbar gutter so the result-dialog scroll-lock (overflow:hidden
+   on <html>) does not remove the scrollbar and shift the page width — fixes the
+   open/close flicker. This stylesheet loads only on the spin route, so the bare
+   html selector is automatically scoped to that page. */
+html {
+  scrollbar-gutter: stable;
+}
+
 /* Remove Astra container width/padding so the full-width layout works */
 body.nera-spin-to-win-page #primary,
 body.nera-spin-to-win-page .site-content,

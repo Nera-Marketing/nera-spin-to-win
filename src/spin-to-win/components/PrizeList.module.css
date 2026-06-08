@@ -1,0 +1,171 @@
+/* Aside — hidden on mobile, flex column on xl (literal stw-prize-scroll stw-side-scrollbar on ul) */
+.aside {
+  display: none;
+  order: 2;
+}
+
+@media (min-width: 1280px) {
+  .aside {
+    grid-column: span 3 / span 3;
+    order: 1;
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
+  }
+}
+
+.header {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.icon {
+  display: flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  background: linear-gradient(to bottom right, var(--stw-brand), var(--stw-brand-dark));
+  color: #ffffff;
+  box-shadow:
+    0 8px 24px -8px color-mix(in srgb, var(--stw-brand) 45%, transparent),
+    0 0 0 2px color-mix(in srgb, var(--stw-accent) 25%, transparent);
+}
+
+.iconSvg {
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+.title {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 1.25;
+  letter-spacing: 0.12em;
+  color: var(--stw-text);
+}
+
+/* List — literal stw-prize-scroll stw-side-scrollbar applied in JSX */
+.list {
+  max-height: min(420px, 50vh);
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.list > * + * {
+  margin-top: 0.75rem;
+}
+
+@media (min-width: 1280px) {
+  .list {
+    max-height: none;
+    min-height: 0;
+    flex: 1 1 0%;
+  }
+}
+
+/* Card */
+.card {
+  display: flex;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid rgba(243, 244, 246, 0.9);
+  background: var(--stw-surface);
+  box-shadow:
+    0 8px 30px -12px rgba(15, 23, 42, 0.12),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+  transition: transform 300ms, box-shadow 300ms;
+}
+
+.card:hover {
+  transform: translateY(-0.125rem);
+  box-shadow:
+    0 16px 40px -16px color-mix(in srgb, var(--stw-brand) 18%, transparent),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+/* Left color stripe */
+.stripe {
+  width: 0.5rem;
+  flex-shrink: 0;
+  align-self: stretch;
+  min-height: 4.5rem;
+  transition: opacity 300ms;
+}
+
+.card:hover .stripe {
+  opacity: 0.9;
+}
+
+/* Image area */
+.imageWrap {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  min-height: 4.5rem;
+  flex: 1 1 0%;
+  overflow: hidden;
+  border-radius: 0 1rem 1rem 0;
+  background: var(--stw-accent-soft);
+}
+
+.img {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  transition: transform 500ms;
+}
+
+.card:hover .img {
+  transform: scale(1.03);
+}
+
+.gradient {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.35), transparent, transparent);
+  opacity: 0.8;
+}
+
+.label {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  max-width: calc(100% - 1.5rem);
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0.25rem 0.625rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--stw-text);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+.noImage {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--stw-text-muted);
+}

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Wheel } from 'spin-wheel';
 import { readThemeColors } from '../utils/themeColors.js';
+import styles from './WheelCanvas.module.css';
 
 export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
   const hostRef = useRef(null);
@@ -28,7 +29,7 @@ export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
       rotation: 0,
       pointerAngle: 0,
       borderWidth: 6,
-      borderColor: '#f59e0b',
+      borderColor: theme.wheelRim,
       lineWidth: 2,
       lineColor: 'rgba(255,255,255,0.38)',
       pixelRatio: 0,
@@ -85,5 +86,5 @@ export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
     };
   }, [spinRequest, onSpinEnd]);
 
-  return <div id="nera-stw-wheel" ref={hostRef} className="w-full h-full" />;
+  return <div id="nera-stw-wheel" ref={hostRef} className={styles.host} />;
 }
