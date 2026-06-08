@@ -207,20 +207,20 @@
   align-items: center;
   gap: 0.5rem;
   border-radius: 9999px;
-  border: 1px solid rgba(251, 191, 36, 0.35);
+  border: 1px solid color-mix(in srgb, var(--stw-accent) 35%, transparent);
   background: linear-gradient(
     to right,
-    rgba(192, 23, 46, 0.07),
+    color-mix(in srgb, var(--stw-brand) 7%, transparent),
     rgba(255, 251, 235, 0.9),
-    rgba(192, 23, 46, 0.07)
+    color-mix(in srgb, var(--stw-brand) 7%, transparent)
   );
   padding: 0.375rem 1rem;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: #c0172e;
-  box-shadow: 0 4px 24px -8px rgba(192, 23, 46, 0.25);
+  color: var(--stw-brand);
+  box-shadow: 0 4px 24px -8px color-mix(in srgb, var(--stw-brand) 25%, transparent);
 }
 
 .stw-hero-badge-dot {
@@ -228,8 +228,8 @@
   height: 0.375rem;
   width: 0.375rem;
   border-radius: 9999px;
-  background: #fbbf24;
-  box-shadow: 0 0 10px rgba(251, 191, 36, 0.85);
+  background: var(--stw-accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--stw-accent) 85%, transparent);
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
