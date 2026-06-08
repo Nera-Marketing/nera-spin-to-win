@@ -4,7 +4,7 @@ Tags: woocommerce, lottery, spin wheel, competition
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 
 Spin wheel for lottery competitions — spins from ticket purchases, site credit and physical prizes.
@@ -22,6 +22,11 @@ Spin wheel for lottery competitions — spins from ticket purchases, site credit
 3. Configure wheel segments and options per product as needed.
 
 == Changelog ==
+
+= 1.2.2 =
+* Change: Spin To Win component styles migrated to scoped CSS Modules — no visual change, cleaner isolation and no global class bleed.
+* New: wheel colors are now overridable per site via dedicated `--stw-*` CSS variables (`--stw-brand`, `--stw-accent`, `--stw-wheel-segment-a`/`-b`, `--stw-wheel-rim`, `--stw-wheel-bulb`, `--stw-wheel-pointer`) read from the `#nera-spin-root` island; falls back to the red/gold defaults when unset.
+* Update: refreshed Nera logo asset.
 
 = 1.2.1 =
 * New: public REST endpoint `GET /nera-stw/v1/product/{id}/prizes` returns physical and site-credit prize segments with availability counts, recent winners (privacy-masked), totals, a 60-second server-side cache, and per-IP rate limiting (30 req/min) — powers the new prize banner on single-product pages.
