@@ -140,7 +140,7 @@ export default function SpinToWinApp({ cfg }) {
         // Wheel slices use the fixed-default --stw-wheel-* tokens (red/gold),
         // independent of brand; overridable per site for special cases.
         backgroundColor: pos % 2 === 0 ? palette.wheelA : palette.wheelB,
-        labelColor: '#ffffff',
+        labelColor: palette.wheelLabel,
       };
     });
   }, [state?.wheel_items, displayIndices, palette]);
