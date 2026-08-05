@@ -26,6 +26,7 @@ export function readThemeColors() {
     wheelRim: pick('--stw-wheel-rim', '#f59e0b'),
     wheelBulb: pick('--stw-wheel-bulb', '#fbbf24'),
     wheelPointer: pick('--stw-wheel-pointer', '#dc2626'),
+    wheelLabel: pick('--stw-wheel-label', '#ffffff'),
     fontHeading: pick(
       '--font-heading',
       "'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",

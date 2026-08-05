@@ -93,6 +93,7 @@
   --stw-wheel-bulb:      #fbbf24; /* bulb core + centre cap */
   --stw-wheel-pointer:   #dc2626; /* pointer fill    */
   --stw-wheel-base:      #7b0d1e; /* deep backing behind canvas */
+  --stw-wheel-label:     #ffffff; /* prize-name text on the wheel */
 }
 
 /* ============================================================
