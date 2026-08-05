@@ -23,6 +23,10 @@ Spin wheel for lottery competitions — spins from ticket purchases, site credit
 
 == Changelog ==
 
+= 1.2.3 =
+* New: wheel prize-name text colour is now configurable via the `--stw-wheel-label` CSS variable (theme "Wheel Colours" settings), defaulting to white.
+* Fix: reduced the muddy stroke/shadow effect behind wheel text for better readability.
+
 = 1.2.2 =
 * Change: Spin To Win component styles migrated to scoped CSS Modules — no visual change, cleaner isolation and no global class bleed.
 * New: wheel colors are now overridable per site via dedicated `--stw-*` CSS variables (`--stw-brand`, `--stw-accent`, `--stw-wheel-segment-a`/`-b`, `--stw-wheel-rim`, `--stw-wheel-bulb`, `--stw-wheel-pointer`) read from the `#nera-spin-root` island; falls back to the red/gold defaults when unset.
