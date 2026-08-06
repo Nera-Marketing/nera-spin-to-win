@@ -436,6 +436,9 @@ export default function SpinToWinApp({ cfg }) {
                 segmentCount={wheelItems.length || 10}
                 rim={palette.wheelRim}
                 bulb={palette.wheelBulb}
+                bulbMid={palette.wheelBulbMid}
+                bulbHot={palette.wheelBulbHot}
+                bulbSpecular={palette.wheelBulbSpecular}
                 pointer={palette.wheelPointer}
               />
               </div>

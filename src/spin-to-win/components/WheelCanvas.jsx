@@ -12,17 +12,26 @@ export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
       return undefined;
     }
 
+    const host = hostRef.current;
     const theme = readThemeColors();
 
-    const wheel = new Wheel(hostRef.current, {
+    const onResize = () => {
+      if (wheelRef.current && typeof wheelRef.current.resize === 'function') {
+        wheelRef.current.resize();
+      }
+    };
+
+    const wheel = new Wheel(host, {
       items,
       isInteractive: false,
-      // Radial labels: text runs along each slice's radius (rim → center), scales to any segment count.
-      itemLabelAlign: 'right',
+      // Radial labels reading center → rim (matches CMS live preview).
+      // Align + 180° rotation must change together — rotation alone clips text past the rim.
+      itemLabelAlign: 'left',
       itemLabelRadius: 0.85,
       itemLabelRadiusMax: 0.25,
       itemLabelFontSizeMax: 14,
-      itemLabelRotation: 0,
+      itemLabelRotation: 180,
+      // Rendered bold (weight 700) via the spin-wheel-bold-labels vite patch.
       itemLabelFont: theme.fontHeading,
       itemLabelStrokeWidth: 1,
       itemLabelStrokeColor: 'rgba(0,0,0,0.18)',
@@ -37,13 +46,6 @@ export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
 
     wheel.resize();
     wheelRef.current = wheel;
-
-    const onResize = () => {
-      if (wheelRef.current && typeof wheelRef.current.resize === 'function') {
-        wheelRef.current.resize();
-      }
-    };
-
     window.addEventListener('resize', onResize);
 
     return () => {

@@ -8,6 +8,9 @@ export default function WheelChrome({
   segmentCount = 10,
   rim = '#f59e0b',
   bulb = '#fbbf24',
+  bulbMid = '#fde68a',
+  bulbHot = '#fffde7',
+  bulbSpecular = '#ffffff',
   pointer = '#dc2626',
 }) {
   const n = Math.max(2, segmentCount);
@@ -51,18 +54,18 @@ export default function WheelChrome({
                   opacity: 0.55,
                 }}
               />
-              <circle cx={x} cy={y} r={1.76} fill="#fde68a" />
+              <circle cx={x} cy={y} r={1.76} fill={bulbMid} />
               <circle
                 cx={x}
                 cy={y}
                 r={1.0}
-                fill="#fffde7"
+                fill={bulbHot}
                 opacity="0.9"
                 style={{
                   animation: `nera-bulb-pulse 2.7s ease-in-out ${delay} infinite`,
                 }}
               />
-              <circle cx={x - 0.52} cy={y - 0.52} r={0.34} fill="white" opacity="0.75" />
+              <circle cx={x - 0.52} cy={y - 0.52} r={0.34} fill={bulbSpecular} opacity="0.75" />
             </g>
           );
         })}
