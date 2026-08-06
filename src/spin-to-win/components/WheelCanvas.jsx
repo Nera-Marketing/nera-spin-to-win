@@ -57,6 +57,22 @@ export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
         return;
       }
 
+      // Redraw once fonts are fully settled so labels don't stick at regular weight.
+      if (typeof document !== 'undefined' && document.fonts?.ready) {
+        try {
+          await document.fonts.ready;
+        } catch {
+          // ignore
+        }
+      }
+      if (cancelled) {
+        if (typeof wheel.remove === 'function') {
+          wheel.remove();
+        }
+        return;
+      }
+
+      wheel.itemLabelFont = itemLabelFont;
       wheel.resize();
       wheelRef.current = wheel;
       window.addEventListener('resize', onResize);

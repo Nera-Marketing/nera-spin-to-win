@@ -5,15 +5,17 @@
  * font-weight cannot be placed before the size. We register a dedicated
  * family whose glyphs are Poppins 700, exposed at weight 400 for that
  * family name — canvas then draws true bold without an invalid font string.
+ *
+ * Do NOT gate on document.fonts.check(family) — Chromium often returns true
+ * for unknown families (fallback), which skipped registration and left labels
+ * at Poppins 400.
  */
 
 const BOLD_FAMILY = 'NeraSTWWheelLabel';
 
-/** Poppins 700 woff2 (Google Fonts v24) — latin + latin-ext. */
-const POPPINS_700_SOURCES = [
-  "url(https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFd2JQEk.woff2) format('woff2')",
-  "url(https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1JlFd2JQEl8qw.woff2) format('woff2')",
-].join(', ');
+/** Poppins 700 latin woff2 (Google Fonts v24). */
+const POPPINS_700_SRC =
+  "url(https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFd2JQEk.woff2) format('woff2')";
 
 let registerPromise = null;
 
@@ -22,34 +24,33 @@ function primaryFamily(fontHeading) {
   if (!raw) {
     return 'Poppins';
   }
-  // First family in a CSS font-family stack, strip quotes.
   const first = raw.split(',')[0].trim().replace(/^['"]|['"]$/g, '');
   return first || 'Poppins';
 }
 
 function ensureBoldLabelFace() {
   if (typeof document === 'undefined' || !document.fonts) {
-    return Promise.resolve();
-  }
-  if (document.fonts.check(`16px "${BOLD_FAMILY}"`)) {
-    return Promise.resolve();
+    return Promise.resolve(false);
   }
   if (registerPromise) {
     return registerPromise;
   }
 
   registerPromise = (async () => {
-    const face = new FontFace(BOLD_FAMILY, POPPINS_700_SOURCES, {
-      style: 'normal',
-      weight: '400',
-      display: 'swap',
-    });
     try {
+      const face = new FontFace(BOLD_FAMILY, POPPINS_700_SRC, {
+        style: 'normal',
+        weight: '400',
+        display: 'swap',
+      });
       await face.load();
       document.fonts.add(face);
+      // Ensure the face is usable for canvas before callers create the wheel.
+      await document.fonts.load(`48px "${BOLD_FAMILY}"`);
+      return true;
     } catch {
-      // Fall through to theme heading stack if the remote face fails.
       registerPromise = null;
+      return false;
     }
   })();
 
@@ -74,7 +75,13 @@ export async function resolveBoldWheelLabelFont(fontHeading) {
     }
   }
 
-  await ensureBoldLabelFace();
+  const ok = await ensureBoldLabelFace();
+  if (!ok) {
+    // Last resort: still prefer a bold-capable stack name; browser may synthesize.
+    return heading;
+  }
 
   return `'${BOLD_FAMILY}', ${heading}`;
 }
+
+export { BOLD_FAMILY };
