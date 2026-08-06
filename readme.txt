@@ -4,7 +4,7 @@ Tags: woocommerce, lottery, spin wheel, competition
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.2.3
+Stable tag: 1.2.4
 License: GPLv2 or later
 
 Spin wheel for lottery competitions — spins from ticket purchases, site credit and physical prizes.
@@ -22,6 +22,11 @@ Spin wheel for lottery competitions — spins from ticket purchases, site credit
 3. Configure wheel segments and options per product as needed.
 
 == Changelog ==
+
+= 1.2.4 =
+* New: rim light-bulb highlight layers (mid / hot / specular) are themeable via `--stw-wheel-bulb-mid`, `--stw-wheel-bulb-hot`, and `--stw-wheel-bulb-specular`.
+* Change: wheel prize labels render in bold (Poppins 700).
+* Change: prize labels read center → rim, with an upright flip so both halves of the wheel stay readable.
 
 = 1.2.3 =
 * New: wheel prize-name text colour is now configurable via the `--stw-wheel-label` CSS variable (theme "Wheel Colours" settings), defaulting to white.
