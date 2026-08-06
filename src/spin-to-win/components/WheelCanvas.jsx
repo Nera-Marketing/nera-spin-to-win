@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Wheel } from 'spin-wheel';
 import { readThemeColors } from '../utils/themeColors.js';
+import { resolveBoldWheelLabelFont } from '../utils/wheelLabelFont.js';
 import styles from './WheelCanvas.module.css';
 
 export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
@@ -12,31 +13,8 @@ export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
       return undefined;
     }
 
-    const theme = readThemeColors();
-
-    const wheel = new Wheel(hostRef.current, {
-      items,
-      isInteractive: false,
-      // Radial labels: text runs along each slice's radius (rim → center), scales to any segment count.
-      itemLabelAlign: 'right',
-      itemLabelRadius: 0.85,
-      itemLabelRadiusMax: 0.25,
-      itemLabelFontSizeMax: 14,
-      itemLabelRotation: 0,
-      itemLabelFont: theme.fontHeading,
-      itemLabelStrokeWidth: 1,
-      itemLabelStrokeColor: 'rgba(0,0,0,0.18)',
-      rotation: 0,
-      pointerAngle: 0,
-      borderWidth: 6,
-      borderColor: theme.wheelRim,
-      lineWidth: 2,
-      lineColor: 'rgba(255,255,255,0.38)',
-      pixelRatio: 0,
-    });
-
-    wheel.resize();
-    wheelRef.current = wheel;
+    let cancelled = false;
+    const host = hostRef.current;
 
     const onResize = () => {
       if (wheelRef.current && typeof wheelRef.current.resize === 'function') {
@@ -44,9 +22,48 @@ export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
       }
     };
 
-    window.addEventListener('resize', onResize);
+    (async () => {
+      const theme = readThemeColors();
+      const itemLabelFont = await resolveBoldWheelLabelFont(theme.fontHeading);
+      if (cancelled || !hostRef.current) {
+        return;
+      }
+
+      const wheel = new Wheel(host, {
+        items,
+        isInteractive: false,
+        // Radial labels: text runs along each slice's radius (rim → center), scales to any segment count.
+        itemLabelAlign: 'right',
+        itemLabelRadius: 0.85,
+        itemLabelRadiusMax: 0.25,
+        itemLabelFontSizeMax: 14,
+        itemLabelRotation: 0,
+        itemLabelFont,
+        itemLabelStrokeWidth: 1,
+        itemLabelStrokeColor: 'rgba(0,0,0,0.18)',
+        rotation: 0,
+        pointerAngle: 0,
+        borderWidth: 6,
+        borderColor: theme.wheelRim,
+        lineWidth: 2,
+        lineColor: 'rgba(255,255,255,0.38)',
+        pixelRatio: 0,
+      });
+
+      if (cancelled) {
+        if (typeof wheel.remove === 'function') {
+          wheel.remove();
+        }
+        return;
+      }
+
+      wheel.resize();
+      wheelRef.current = wheel;
+      window.addEventListener('resize', onResize);
+    })();
 
     return () => {
+      cancelled = true;
       window.removeEventListener('resize', onResize);
       if (wheelRef.current && typeof wheelRef.current.remove === 'function') {
         wheelRef.current.remove();
