@@ -24,6 +24,8 @@ export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
 
     (async () => {
       const theme = readThemeColors();
+      // Ensure Poppins 700 (and dedicated face) are ready before first paint;
+      // vite also prefixes ctx.font with 700 for true canvas bold.
       const itemLabelFont = await resolveBoldWheelLabelFont(theme.fontHeading);
       if (cancelled || !hostRef.current) {
         return;
@@ -36,7 +38,7 @@ export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
         itemLabelAlign: 'right',
         itemLabelRadius: 0.85,
         itemLabelRadiusMax: 0.25,
-        itemLabelFontSizeMax: 14,
+        itemLabelFontSizeMax: 16,
         itemLabelRotation: 0,
         itemLabelFont,
         itemLabelStrokeWidth: 1,
@@ -57,7 +59,6 @@ export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
         return;
       }
 
-      // Redraw once fonts are fully settled so labels don't stick at regular weight.
       if (typeof document !== 'undefined' && document.fonts?.ready) {
         try {
           await document.fonts.ready;
