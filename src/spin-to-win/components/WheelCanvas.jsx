@@ -3,28 +3,6 @@ import { Wheel } from 'spin-wheel';
 import { readThemeColors } from '../utils/themeColors.js';
 import styles from './WheelCanvas.module.css';
 
-/**
- * Ensure the theme heading family’s heavy face is ready before the first
- * canvas paint. Actual weight is applied by the vite `spin-wheel-bold-labels`
- * transform (`ctx.font = '800 ' + size + 'px ' + family`).
- */
-async function ensureHeadingBold(fontHeading) {
-  if (typeof document === 'undefined' || !document.fonts?.load) {
-    return;
-  }
-  const raw = String(fontHeading || '').trim();
-  const first = (raw.split(',')[0] || 'Poppins').trim().replace(/^['"]|['"]$/g, '') || 'Poppins';
-  try {
-    await document.fonts.load(`800 48px "${first}"`);
-    await document.fonts.load(`700 48px "${first}"`);
-    if (document.fonts.ready) {
-      await document.fonts.ready;
-    }
-  } catch {
-    // Proceed with system fallback if the face isn’t available yet.
-  }
-}
-
 export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
   const hostRef = useRef(null);
   const wheelRef = useRef(null);
@@ -34,8 +12,8 @@ export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
       return undefined;
     }
 
-    let cancelled = false;
     const host = hostRef.current;
+    const theme = readThemeColors();
 
     const onResize = () => {
       if (wheelRef.current && typeof wheelRef.current.resize === 'function') {
@@ -43,48 +21,34 @@ export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
       }
     };
 
-    (async () => {
-      const theme = readThemeColors();
-      await ensureHeadingBold(theme.fontHeading);
-      if (cancelled || !hostRef.current) {
-        return;
-      }
+    const wheel = new Wheel(host, {
+      items,
+      isInteractive: false,
+      // Radial labels reading center → rim (matches CMS live preview).
+      // Align + 180° rotation must change together — rotation alone clips text past the rim.
+      itemLabelAlign: 'left',
+      itemLabelRadius: 0.85,
+      itemLabelRadiusMax: 0.25,
+      itemLabelFontSizeMax: 14,
+      itemLabelRotation: 180,
+      // Rendered bold (weight 700) via the spin-wheel-bold-labels vite patch.
+      itemLabelFont: theme.fontHeading,
+      itemLabelStrokeWidth: 1,
+      itemLabelStrokeColor: 'rgba(0,0,0,0.18)',
+      rotation: 0,
+      pointerAngle: 0,
+      borderWidth: 6,
+      borderColor: theme.wheelRim,
+      lineWidth: 2,
+      lineColor: 'rgba(255,255,255,0.38)',
+      pixelRatio: 0,
+    });
 
-      const wheel = new Wheel(host, {
-        items,
-        isInteractive: false,
-        // Radial labels: text runs along each slice's radius (rim → center), scales to any segment count.
-        itemLabelAlign: 'right',
-        itemLabelRadius: 0.85,
-        itemLabelRadiusMax: 0.25,
-        itemLabelFontSizeMax: 18,
-        itemLabelRotation: 0,
-        itemLabelFont: theme.fontHeading,
-        itemLabelStrokeWidth: 0,
-        itemLabelStrokeColor: 'transparent',
-        rotation: 0,
-        pointerAngle: 0,
-        borderWidth: 6,
-        borderColor: theme.wheelRim,
-        lineWidth: 2,
-        lineColor: 'rgba(255,255,255,0.38)',
-        pixelRatio: 0,
-      });
-
-      if (cancelled) {
-        if (typeof wheel.remove === 'function') {
-          wheel.remove();
-        }
-        return;
-      }
-
-      wheel.resize();
-      wheelRef.current = wheel;
-      window.addEventListener('resize', onResize);
-    })();
+    wheel.resize();
+    wheelRef.current = wheel;
+    window.addEventListener('resize', onResize);
 
     return () => {
-      cancelled = true;
       window.removeEventListener('resize', onResize);
       if (wheelRef.current && typeof wheelRef.current.remove === 'function') {
         wheelRef.current.remove();

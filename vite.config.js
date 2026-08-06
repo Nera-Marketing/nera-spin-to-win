@@ -3,24 +3,30 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
 /**
- * spin-wheel builds `ctx.font` as `${size}px ${family}`, which cannot express
- * font-weight. Prefix 800 so canvas labels render a clearly heavy weight.
+ * spin-wheel builds `ctx.font` as `${size}px ${itemLabelFont}`, which can't
+ * express a weight (weight must come *before* the size in a CSS font
+ * shorthand). Patch the library's font-assignment line to prefix `700 ` so
+ * prize labels render true bold.
+ *
+ * The package's "browser" export resolves to the *minified* dist bundle
+ * (variable names/quoting differ from src/wheel.js), so match loosely with a
+ * regex instead of an exact string.
  */
 function spinWheelBoldLabels() {
-  const needle = "ctx.font = this._itemLabelFontSize + 'px ' + this.itemLabelFont;";
-  const replacement =
-    "ctx.font = '800 ' + this._itemLabelFontSize + 'px ' + this.itemLabelFont;";
+  const pattern =
+    /(\w+)\.font\s*=\s*this\._itemLabelFontSize\s*\+\s*(["'])px \2\s*\+\s*this\.itemLabelFont/;
   return {
     name: 'spin-wheel-bold-labels',
     transform(code, id) {
-      if (!id.includes('spin-wheel') || !id.endsWith('wheel.js')) {
-        return null;
-      }
-      if (!code.includes(needle)) {
+      if (!id.includes('spin-wheel') || !pattern.test(code)) {
         return null;
       }
       return {
-        code: code.replace(needle, replacement),
+        code: code.replace(
+          pattern,
+          (_match, ctxVar, quote) =>
+            `${ctxVar}.font='700 '+this._itemLabelFontSize+${quote}px ${quote}+this.itemLabelFont`,
+        ),
         map: null,
       };
     },
