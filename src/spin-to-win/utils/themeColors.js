@@ -25,6 +25,9 @@ export function readThemeColors() {
     wheelB: pick('--stw-wheel-segment-b', '#e8950a'),
     wheelRim: pick('--stw-wheel-rim', '#f59e0b'),
     wheelBulb: pick('--stw-wheel-bulb', '#fbbf24'),
+    wheelBulbMid: pick('--stw-wheel-bulb-mid', '#fde68a'),
+    wheelBulbHot: pick('--stw-wheel-bulb-hot', '#fffde7'),
+    wheelBulbSpecular: pick('--stw-wheel-bulb-specular', '#ffffff'),
     wheelPointer: pick('--stw-wheel-pointer', '#dc2626'),
     wheelLabel: pick('--stw-wheel-label', '#ffffff'),
     fontHeading: pick(

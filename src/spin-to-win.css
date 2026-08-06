@@ -91,6 +91,9 @@
   --stw-wheel-segment-b: #e8950a; /* slice B (amber) */
   --stw-wheel-rim:       #f59e0b; /* rim/border, ring, bulb halo, pointer stroke */
   --stw-wheel-bulb:      #fbbf24; /* bulb core + centre cap */
+  --stw-wheel-bulb-mid:  #fde68a; /* bulb mid highlight ring */
+  --stw-wheel-bulb-hot:  #fffde7; /* bulb hot-spot (pulsing) */
+  --stw-wheel-bulb-specular: #ffffff; /* bulb specular glint */
   --stw-wheel-pointer:   #dc2626; /* pointer fill    */
   --stw-wheel-base:      #7b0d1e; /* deep backing behind canvas */
   --stw-wheel-label:     #ffffff; /* prize-name text on the wheel */
