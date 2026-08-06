@@ -1,8 +1,28 @@
 import React, { useEffect, useRef } from 'react';
 import { Wheel } from 'spin-wheel';
 import { readThemeColors } from '../utils/themeColors.js';
-import { resolveBoldWheelLabelFont } from '../utils/wheelLabelFont.js';
 import styles from './WheelCanvas.module.css';
+
+/**
+ * Ensure the theme heading family’s 700 face is ready before the first canvas
+ * paint. Actual bold weight is applied by the vite `spin-wheel-bold-labels`
+ * transform (`ctx.font = '700 ' + size + 'px ' + family`).
+ */
+async function ensureHeadingBold(fontHeading) {
+  if (typeof document === 'undefined' || !document.fonts?.load) {
+    return;
+  }
+  const raw = String(fontHeading || '').trim();
+  const first = (raw.split(',')[0] || 'Poppins').trim().replace(/^['"]|['"]$/g, '') || 'Poppins';
+  try {
+    await document.fonts.load(`700 48px "${first}"`);
+    if (document.fonts.ready) {
+      await document.fonts.ready;
+    }
+  } catch {
+    // Proceed with system fallback if the face isn’t available yet.
+  }
+}
 
 export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
   const hostRef = useRef(null);
@@ -24,9 +44,7 @@ export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
 
     (async () => {
       const theme = readThemeColors();
-      // Ensure Poppins 700 (and dedicated face) are ready before first paint;
-      // vite also prefixes ctx.font with 700 for true canvas bold.
-      const itemLabelFont = await resolveBoldWheelLabelFont(theme.fontHeading);
+      await ensureHeadingBold(theme.fontHeading);
       if (cancelled || !hostRef.current) {
         return;
       }
@@ -38,9 +56,9 @@ export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
         itemLabelAlign: 'right',
         itemLabelRadius: 0.85,
         itemLabelRadiusMax: 0.25,
-        itemLabelFontSizeMax: 16,
+        itemLabelFontSizeMax: 18,
         itemLabelRotation: 0,
-        itemLabelFont,
+        itemLabelFont: theme.fontHeading,
         itemLabelStrokeWidth: 1,
         itemLabelStrokeColor: 'rgba(0,0,0,0.18)',
         rotation: 0,
@@ -59,21 +77,6 @@ export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
         return;
       }
 
-      if (typeof document !== 'undefined' && document.fonts?.ready) {
-        try {
-          await document.fonts.ready;
-        } catch {
-          // ignore
-        }
-      }
-      if (cancelled) {
-        if (typeof wheel.remove === 'function') {
-          wheel.remove();
-        }
-        return;
-      }
-
-      wheel.itemLabelFont = itemLabelFont;
       wheel.resize();
       wheelRef.current = wheel;
       window.addEventListener('resize', onResize);
