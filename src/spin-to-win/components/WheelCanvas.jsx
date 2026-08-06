@@ -4,9 +4,9 @@ import { readThemeColors } from '../utils/themeColors.js';
 import styles from './WheelCanvas.module.css';
 
 /**
- * Ensure the theme heading family’s 700 face is ready before the first canvas
- * paint. Actual bold weight is applied by the vite `spin-wheel-bold-labels`
- * transform (`ctx.font = '700 ' + size + 'px ' + family`).
+ * Ensure the theme heading family’s heavy face is ready before the first
+ * canvas paint. Actual weight is applied by the vite `spin-wheel-bold-labels`
+ * transform (`ctx.font = '800 ' + size + 'px ' + family`).
  */
 async function ensureHeadingBold(fontHeading) {
   if (typeof document === 'undefined' || !document.fonts?.load) {
@@ -15,6 +15,7 @@ async function ensureHeadingBold(fontHeading) {
   const raw = String(fontHeading || '').trim();
   const first = (raw.split(',')[0] || 'Poppins').trim().replace(/^['"]|['"]$/g, '') || 'Poppins';
   try {
+    await document.fonts.load(`800 48px "${first}"`);
     await document.fonts.load(`700 48px "${first}"`);
     if (document.fonts.ready) {
       await document.fonts.ready;
@@ -59,8 +60,8 @@ export default function WheelCanvas({ items, spinRequest, onSpinEnd }) {
         itemLabelFontSizeMax: 18,
         itemLabelRotation: 0,
         itemLabelFont: theme.fontHeading,
-        itemLabelStrokeWidth: 1,
-        itemLabelStrokeColor: 'rgba(0,0,0,0.18)',
+        itemLabelStrokeWidth: 0,
+        itemLabelStrokeColor: 'transparent',
         rotation: 0,
         pointerAngle: 0,
         borderWidth: 6,

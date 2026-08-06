@@ -4,12 +4,12 @@ import { resolve } from 'path';
 
 /**
  * spin-wheel builds `ctx.font` as `${size}px ${family}`, which cannot express
- * font-weight. Prefix 700 so canvas labels render true bold.
+ * font-weight. Prefix 800 so canvas labels render a clearly heavy weight.
  */
 function spinWheelBoldLabels() {
   const needle = "ctx.font = this._itemLabelFontSize + 'px ' + this.itemLabelFont;";
   const replacement =
-    "ctx.font = '700 ' + this._itemLabelFontSize + 'px ' + this.itemLabelFont;";
+    "ctx.font = '800 ' + this._itemLabelFontSize + 'px ' + this.itemLabelFont;";
   return {
     name: 'spin-wheel-bold-labels',
     transform(code, id) {
